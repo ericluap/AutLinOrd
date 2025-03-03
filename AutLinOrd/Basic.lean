@@ -62,4 +62,4 @@ abbrev isBoundedBump (f : α ≃o α) :=
   are both in the orbital of a bounded bump.
 -/
 abbrev bubbleR (x y : α) :=
-  ∃f : α ≃o α, (isBoundedBump f ∧ x ∈ orbital f ∧ y ∈ orbital f) ∨ x = y
+  (∃f : α ≃o α, (isBoundedBump f ∧ x ∈ orbital f ∧ y ∈ orbital f)) ∨ x = y

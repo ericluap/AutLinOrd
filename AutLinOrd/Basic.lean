@@ -10,14 +10,10 @@ variable {α : Type*} [LinearOrder α]
 abbrev elem_orbit (f : α ≃o α) (x : α) :=
   MulAction.orbit (Subgroup.zpowers f) x
 
-abbrev elem_orbital (f : α ≃o α) (x : α) := (elem_orbit f x).ordClosure
-
 /--
-  The orbital of `x` under `f` is convex.
+  The orbital of `x` under an automorphism `f`.
 -/
-theorem elem_orbital_ordclosed (f : α ≃o α) (x : α) :
-    (elem_orbital f x).OrdConnected :=
-  ordConnected_ordClosure (elem_orbit f x)
+abbrev elem_orbital (f : α ≃o α) (x : α) := (elem_orbit f x).ordClosure
 
 /--
   The set of all non-singleton orbitals of `f`.

@@ -5,3 +5,52 @@
 % If you want to split the blueprint content into several files then
 % the current file can be a simple sequence of \input. Otherwise It
 % can start with a \section or \chapter for instance.
+\chapter{Bumps, blocks, and bubbles}
+\section*{Bubbles}
+Our goal here is to define the bubble relation
+on a linear order. Let $X$ be a linear order.
+
+\begin{definition}
+    \label{elem_orbit}
+    \lean{elem_orbit}\leanok
+Let $f\colon X \to X$ an automorphism.
+For any $x\in X$, the \textbf{orbit} of $x$ under $f$
+is the set $\{f^n(x) : n \in \mathbb{Z}\}$.
+\end{definition}
+
+\begin{definition}
+    \label{elem_orbital}
+    \uses{elem_orbit}
+    \lean{elem_orbital}\leanok
+Let $f\colon X \to X$ an automorphism.
+For any $x \in X$, the \textbf{orbital} of $x$ under $f$
+is the convex closure of the orbit of $x$ under $f$.
+\end{definition}
+
+\begin{definition}
+    \label{bump}
+    \uses{elem_orbital}
+    \lean{isBump}\leanok
+A \textbf{bump} is an automorphism
+$f\colon X \to X$ with exactly one non-singleton orbital.
+\end{definition}
+
+\begin{definition}
+    \label{boundedBump}
+    \uses{bump}
+    \lean{isBoundedBump}\leanok
+A \textbf{bounded bump} is a bump
+whose unique non-singleton orbital
+is either strictly bounded below
+or strictly bounded above.
+\end{definition}
+
+\begin{definition}
+    \label{bubbleR}
+    \uses{boundedBump}
+    \lean{bubbleR}\leanok
+We define a relation $\sim_b$ on $X$ as follows:
+$x \sim_b y$ if and only if there exists a
+bounded bump such that $x$ and $y$ are in its
+orbital or $x = y$.
+\end{definition}

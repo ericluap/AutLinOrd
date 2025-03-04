@@ -42,7 +42,7 @@ open Classical in
   The orbital of a bump `f`.
   (If `f` is not a bump, then it returns junk)
 -/
-abbrev orbital (f : α ≃o α) :=
+def orbital (f : α ≃o α) :=
   if h : ∃x, x ∈ orbitals f then
     h.choose
   else
@@ -52,7 +52,7 @@ abbrev orbital (f : α ≃o α) :=
   A bounded bump is a bump whose
   only orbital is bounded above or below.
 -/
-abbrev isBoundedBump (f : α ≃o α) :=
+def isBoundedBump (f : α ≃o α) :=
   isBump f ∧
   (∃x : α,
     (∀y ∈ orbital f, x < y) ∨ (∀y ∈ orbital f, y < x))
@@ -62,4 +62,40 @@ abbrev isBoundedBump (f : α ≃o α) :=
   are both in the orbital of a bounded bump.
 -/
 abbrev bubbleR (x y : α) :=
-  (∃f : α ≃o α, (isBoundedBump f ∧ x ∈ orbital f ∧ y ∈ orbital f)) ∨ x = y
+  (∃f : α ≃o α, isBoundedBump f ∧ x ∈ orbital f ∧ y ∈ orbital f) ∨ x = y
+
+/--
+  The `bubbleR` relation is reflexive.
+-/
+theorem reflexive_bubbleR (x : α) : bubbleR x x := by
+  simp [bubbleR]
+
+/--
+  The `bubbleR` relation is symmetric.
+-/
+theorem symmetric_bubbleR {x y : α} : bubbleR x y → bubbleR y x := by
+  simp only [bubbleR]
+  conv_lhs =>
+    lhs; rhs
+    intro f
+    rhs
+    rw [And.comm]
+  conv_lhs =>
+    rhs;
+    rw [eq_comm]
+  exact fun a ↦ a
+
+/--
+  The `bubbleR` relation is transitive.
+-/
+theorem transitive_bubbleR {x y z : α} :
+    bubbleR x y → bubbleR y z → bubbleR x z := by
+  intro hxy hyz
+  have hxy' := hxy
+  have hyz' := hyz
+  obtain ⟨f, f_boundedbump, x_in_f_orbital, y_in_f_orbital⟩ | rfl := hxy
+  <;> obtain ⟨g, g_boundedbump, y_in_g_orbital, z_in_g_orbital⟩ | rfl := hyz
+  · sorry
+  · exact hxy'
+  · exact hyz'
+  · exact hxy'

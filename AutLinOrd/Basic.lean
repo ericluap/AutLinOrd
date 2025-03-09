@@ -107,6 +107,33 @@ theorem mem_elem_orbital_mp_strong (f : α ≃o α) (x y : α) :
   · right; right
     exact decr_mem_elem_orbital_iff_strong lt hl hu
 
+theorem mem_elem_orbital_mpr_strong (f : α ≃o α) (x y : α) :
+    (f x = y) ∨ (∃z : ℤ, (f ^ z) x ≤ y ∧ y < (f ^ (z + 1)) x) ∨
+    (∃z : ℤ, (f ^ (z+1)) x ≤ y ∧ y < (f ^ z) x) → y ∈ elem_orbital f x := by
+  intro h
+  rw [mem_elem_orbital_iff]
+  obtain fixed | incr | decr := h
+  · constructor
+    <;> (use 1; simp [fixed])
+  · obtain ⟨z, ⟨hz, hz1⟩⟩ := incr
+    constructor
+    · use z
+    · use (z+1)
+      exact hz1.le
+  · obtain ⟨z, ⟨hz1, hz⟩⟩ := decr
+    constructor
+    · use (z+1)
+    · use z
+      exact hz.le
+
+theorem mem_elem_orbital_strong_iff (f : α ≃o α) (x y : α) :
+    y ∈ elem_orbital f x ↔
+      (f x = y) ∨ (∃z : ℤ, (f ^ z) x ≤ y ∧ y < (f ^ (z + 1)) x) ∨
+      (∃z : ℤ, (f ^ (z+1)) x ≤ y ∧ y < (f ^ z) x) := by
+  constructor
+  · exact fun a ↦ mem_elem_orbital_mp_strong f x y a
+  · exact fun a ↦ mem_elem_orbital_mpr_strong f x y a
+
 /--
   `x` is in the orbital of `x` under `f`.
 -/

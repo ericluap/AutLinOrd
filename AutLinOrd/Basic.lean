@@ -56,27 +56,56 @@ theorem mem_elem_orbital_iff (f : α ≃o α) (x y : α) :
   constructor
   <;> simp [elem_orbital, mem_ordClosure, mem_elem_orbit_iff]
 
-theorem mem_elem_orbital_iff_strong (f : α ≃o α) (x y : α) :
-    y ∈ elem_orbital f x ↔ ∃z : ℤ, (f ^ z) x ≤ y ∧ y < (f ^ (z + 1)) x := by
-  rw [mem_elem_orbital_iff]
+theorem incr_mem_elem_orbital_iff_strong {f : α ≃o α} {x y : α}
+    (incr : isIncreasingAt f x) {l u : ℤ} (hl : (f ^ l) x ≤ y)
+    (hu : y ≤ (f ^ u) x) : ∃z : ℤ, (f ^ z) x ≤ y ∧ y < (f ^ (z + 1)) x := by
+  have small_exp_bdd : ∃u : ℤ, ∀z : ℤ, (f ^ z) x ≤ y → z ≤ u := by
+    use u
+    intro z hz
+    exact incr_ge_pow_ge incr (by order)
+  obtain ⟨m, ⟨m_le_y, hm⟩⟩ :=
+    Int.exists_greatest_of_bdd small_exp_bdd (by use l)
+  use m
   constructor
-  · intro between
-    obtain ⟨⟨l, hl⟩, ⟨u, hu⟩⟩ := between
-    by_cases h : x < f x
-    ·
-      set small_exp := {z : ℤ | (f^z) x ≤ y}
-      have small_exp_bdd : ∃u : ℤ, ∀z : ℤ, (f ^ z) x ≤ y → z ≤ u := by
-        use u
-        intro z hz
-        calc
+  · trivial
+  · by_contra! h
+    have := hm (m+1) h
+    omega
 
-    have := Int.exists_greatest_of_bdd
-  · intro strong_between
-    obtain ⟨z, ⟨z_low, zp1_high⟩⟩ := strong_between
-    constructor
-    · tauto
-    · use (z+1)
-      order
+theorem decr_mem_elem_orbital_iff_strong {f : α ≃o α} {x y : α}
+    (decr : isDecreasingAt f x) {l u : ℤ} (hl : (f ^ l) x ≤ y)
+    (hu : y ≤ (f ^ u) x) : ∃z : ℤ, (f ^ (z + 1)) x ≤ y ∧ y < (f ^ z) x := by
+  have small_exp_bdd : ∃u : ℤ, ∀z : ℤ, (f ^ z) x ≤ y → u ≤ z := by
+    use u
+    intro z hz
+    exact decr_ge_pow_ge decr (by order)
+  obtain ⟨m, ⟨m_le_y, hm⟩⟩ :=
+    Int.exists_least_of_bdd small_exp_bdd (by use l)
+  use (m-1)
+  constructor
+  · simp [m_le_y]
+  · by_contra!
+    have := hm (m-1) this
+    omega
+
+theorem mem_elem_orbital_mp_strong (f : α ≃o α) (x y : α) :
+    y ∈ elem_orbital f x →
+      (f x = y) ∨ (∃z : ℤ, (f ^ z) x ≤ y ∧ y < (f ^ (z + 1)) x) ∨
+      (∃z : ℤ, (f ^ (z+1)) x ≤ y ∧ y < (f ^ z) x) := by
+  rw [mem_elem_orbital_iff]
+  intro between
+  obtain ⟨⟨l, hl⟩, ⟨u, hu⟩⟩ := between
+  by_cases h : x < f x
+  · right; left
+    exact incr_mem_elem_orbital_iff_strong h hl hu
+  simp only [not_lt] at h
+  obtain eq | lt := h.eq_or_lt
+  · left
+    rw [fixed_all_pow_eq eq] at hl hu
+    rw [eq]
+    order
+  · right; right
+    exact decr_mem_elem_orbital_iff_strong lt hl hu
 
 /--
   `x` is in the orbital of `x` under `f`.
@@ -110,14 +139,14 @@ theorem mem_elem_orbital_transitive {f : α ≃o α} {x y z : α}
   constructor
   · use (ly + lz)
     calc (f ^ (ly + lz)) z
-    _ = (f ^ ly) ((f ^ lz) z) := by rw [←add_exp]
+    _ = (f ^ ly) ((f ^ lz) z) := by rw [←add_pows]
     _ ≤ (f ^ ly) y := by simp [hlz]
     _ ≤ x := by simp [hly]
   · use (uy + uz)
     calc x
     _ ≤ (f ^ uy) y := by simp [huy]
     _ ≤ (f ^ uy) ((f ^ uz) z) := by simp [huz]
-    _ = (f ^ (uy + uz)) z := by simp [add_exp]
+    _ = (f ^ (uy + uz)) z := by simp [add_pows]
 
 /--
   If `y` is in the orbital of `x` under `f`
@@ -134,9 +163,9 @@ theorem mem_elem_orbital_orbit_between {f : α ≃o α} {x y : α}
   rw [show y = (f ^ (0 : ℤ)) y by simp] at y_mem
   obtain ⟨⟨l, hl⟩, ⟨u, hu⟩⟩ := y_mem
   constructor
-  · convert above_exp_any_above hu m
+  · convert above_pow_any_above hu m
     exact f_pow_m_eq_z.symm
-  · convert below_exp_any_below hl m
+  · convert below_pow_any_below hl m
     exact f_pow_m_eq_z.symm
 
 /--
@@ -164,9 +193,9 @@ theorem pow_mem_elem_orbital (f : α ≃o α) (x y : α) (z : ℤ)
   obtain ⟨⟨l, hl⟩, ⟨u, hu⟩⟩ := y_mem
   constructor
   · use (z + l)
-    simp [←add_exp, hl]
+    simp [←add_pows, hl]
   · use (z + u)
-    simp [←add_exp, hu]
+    simp [←add_pows, hu]
 
 theorem incr_at_incr_all {f : α ≃o α} {x y : α}
     (incr : isIncreasingAt f x) (y_mem : y ∈ elem_orbital f x) :
@@ -222,8 +251,8 @@ theorem mem_orbital_iff {f : α ≃o α} {x : α} :
     · obtain ⟨y, hy, _⟩ := exists_elem
       simp [orbital, h] at hy
 
-theorem elem_in_orbital (f : α ≃o α) (x_mem : x ∈ orbital f) : f x ∈ orbital f := by
-  rw [mem_orbital_iff]
+theorem elem_in_orbital {f : α ≃o α} {x : α} (x_mem : x ∈ orbital f) : f x ∈ orbital f := by
+  rw [mem_orbital_iff, mem_elem_orbital_mp_strong]
 
 abbrev leftBoundedOrbital (f : α ≃o α) := ∃x, ∀y ∈ orbital f, x < y
 abbrev rightBoundedOrbital (f : α ≃o α) := ∃x, ∀y ∈ orbital f, y < x

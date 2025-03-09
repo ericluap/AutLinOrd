@@ -9,6 +9,10 @@ theorem add_pows (f : α ≃o α) (z y : ℤ) (x : α) :
   rw [←Function.comp_apply (f := f^z)]
   simp only [←RelIso.coe_mul, ←zpow_add]
 
+theorem sub_pows (f : α ≃o α) (z y : ℤ) (x : α) :
+    (f ^ z) ((f ^ (-y)) x) = (f ^ (z - y)) x := by
+  rw [show z - y = z + (-y) by omega, ←add_pows]
+
 theorem add_pows_one (f : α ≃o α) (y : ℤ) (x : α) :
     f ((f ^ y) x) = (f ^ (1 + y)) x := by
   conv =>

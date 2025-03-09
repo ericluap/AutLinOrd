@@ -214,7 +214,7 @@ theorem mem_elem_orbital_eq {f : α ≃o α} {x y : α}
   then, for any integer `z`, `(f^z) y` is in
   the oribtal of `x` under `f`.
 -/
-theorem pow_mem_elem_orbital (f : α ≃o α) (x y : α) (z : ℤ)
+theorem pow_mem_elem_orbital {f : α ≃o α} {x y : α} (z : ℤ)
     (y_mem : y ∈ elem_orbital f x) : (f ^ z) y ∈ elem_orbital f x := by
   simp only [mem_elem_orbital_iff] at y_mem ⊢
   obtain ⟨⟨l, hl⟩, ⟨u, hu⟩⟩ := y_mem
@@ -223,6 +223,11 @@ theorem pow_mem_elem_orbital (f : α ≃o α) (x y : α) (z : ℤ)
     simp [←add_pows, hl]
   · use (z + u)
     simp [←add_pows, hu]
+
+theorem pow_mem_elem_orbital_one {f : α ≃o α} {x y : α}
+    (y_mem : y ∈ elem_orbital f x) : f y ∈ elem_orbital f x := by
+  rw [show f = f ^ 1 by simp]
+  exact pow_mem_elem_orbital 1 y_mem
 
 theorem incr_at_incr_all {f : α ≃o α} {x y : α}
     (incr : isIncreasingAt f x) (y_mem : y ∈ elem_orbital f x) :
@@ -262,24 +267,35 @@ def orbital (f : α ≃o α) :=
   else
     ∅
 
+/--
+  `x` is an element of the orbital of `f`
+  if and only if the orbital of `f` is equal to
+  the orbital of `x` under `f`.
+-/
 theorem mem_orbital_iff {f : α ≃o α} {x : α} :
-    x ∈ orbital f ↔ ∃y, y ∈ orbital f ∧ x ∈ elem_orbital f y := by
+    x ∈ orbital f ↔ orbital f = elem_orbital f x := by
   constructor
   · intro x_mem
-    use x
-    exact ⟨x_mem, mem_elem_orbital_reflexive f x⟩
-  · intro exists_elem
-    by_cases h : ∃ x, x ∈ orbitals f
-    · simp [orbital, h] at exists_elem ⊢
-      obtain ⟨y, ⟨hy, hx⟩⟩ := exists_elem
-      obtain ⟨g, ⟨hg, not_singleton⟩⟩ := h.choose_spec.out
-      rw [←hg] at hy ⊢
-      exact mem_elem_orbital_transitive hx hy
-    · obtain ⟨y, hy, _⟩ := exists_elem
-      simp [orbital, h] at hy
+    by_cases h : ∃x, x ∈ orbitals f
+    · simp only [orbital, h, ↓reduceDIte] at x_mem ⊢
+      have := h.choose_spec
+      simp only [orbitals, not_exists, Set.mem_setOf_eq] at this x_mem ⊢
+      obtain ⟨z, eq_elem_orbital, not_singleton⟩ := this
+      simp [←eq_elem_orbital] at x_mem ⊢
+      exact (mem_elem_orbital_eq x_mem).symm
+    · simp [orbital, h] at x_mem
+  · intro eq_orbital
+    rw [eq_orbital]
+    exact mem_elem_orbital_reflexive f x
 
-theorem elem_in_orbital {f : α ≃o α} {x : α} (x_mem : x ∈ orbital f) : f x ∈ orbital f := by
-  rw [mem_orbital_iff, mem_elem_orbital_mp_strong]
+theorem pow_mem_orbital {f : α ≃o α} {x : α} (x_mem : x ∈ orbital f) (z : ℤ) :
+    (f ^ z) x ∈ orbital f := by
+  rw [mem_orbital_iff] at x_mem
+  rw [x_mem]
+  exact pow_mem_elem_orbital z (mem_elem_orbital_reflexive f x)
+
+theorem pow_mem_orbital_one {f : α ≃o α} {x : α} (x_mem : x ∈ orbital f) :
+    f x ∈ orbital f := pow_mem_orbital x_mem 1
 
 abbrev leftBoundedOrbital (f : α ≃o α) := ∃x, ∀y ∈ orbital f, x < y
 abbrev rightBoundedOrbital (f : α ≃o α) := ∃x, ∀y ∈ orbital f, y < x

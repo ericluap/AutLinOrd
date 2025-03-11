@@ -56,7 +56,13 @@ theorem mem_elem_orbital_iff (f : α ≃o α) (x y : α) :
   constructor
   <;> simp [elem_orbital, mem_ordClosure, mem_elem_orbit_iff]
 
-theorem incr_mem_elem_orbital_iff_strong {f : α ≃o α} {x y : α}
+/--
+  If `f` is increasing at `x` and `y` is
+  upper and lower bounded by power of `x` under `f`,
+  then there exists an integer `z` such that
+  `(f ^ z) x ≤ y` and `y < (f ^ (z+1)) x`.
+-/
+theorem incr_mem_elem_orbital_strong {f : α ≃o α} {x y : α}
     (incr : isIncreasingAt f x) {l u : ℤ} (hl : (f ^ l) x ≤ y)
     (hu : y ≤ (f ^ u) x) : ∃z : ℤ, (f ^ z) x ≤ y ∧ y < (f ^ (z + 1)) x := by
   have small_exp_bdd : ∃u : ℤ, ∀z : ℤ, (f ^ z) x ≤ y → z ≤ u := by
@@ -72,7 +78,13 @@ theorem incr_mem_elem_orbital_iff_strong {f : α ≃o α} {x y : α}
     have := hm (m+1) h
     omega
 
-theorem decr_mem_elem_orbital_iff_strong {f : α ≃o α} {x y : α}
+/--
+  If `f` is decreasing at `x` and `y` is
+  upper and lower bounded by power of `x` under `f`,
+  then there exists an integer `z` such that
+  `(f ^ (z+1)) x ≤ y` and `y < (f ^ z) x`.
+-/
+theorem decr_mem_elem_orbital_strong {f : α ≃o α} {x y : α}
     (decr : isDecreasingAt f x) {l u : ℤ} (hl : (f ^ l) x ≤ y)
     (hu : y ≤ (f ^ u) x) : ∃z : ℤ, (f ^ (z + 1)) x ≤ y ∧ y < (f ^ z) x := by
   have small_exp_bdd : ∃u : ℤ, ∀z : ℤ, (f ^ z) x ≤ y → u ≤ z := by
@@ -87,7 +99,11 @@ theorem decr_mem_elem_orbital_iff_strong {f : α ≃o α} {x y : α}
   · by_contra!
     have := hm (m-1) this
     omega
-
+/--
+  If `y` is in the orbital of `x` under `f`,
+  then either `f x = y` or there is an integer `z`
+  such that `y` is between `f ^ z` and `f ^ (z+1)`.
+-/
 theorem mem_elem_orbital_mp_strong (f : α ≃o α) (x y : α) :
     y ∈ elem_orbital f x →
       (f x = y) ∨ (∃z : ℤ, (f ^ z) x ≤ y ∧ y < (f ^ (z + 1)) x) ∨
@@ -97,7 +113,7 @@ theorem mem_elem_orbital_mp_strong (f : α ≃o α) (x y : α) :
   obtain ⟨⟨l, hl⟩, ⟨u, hu⟩⟩ := between
   by_cases h : x < f x
   · right; left
-    exact incr_mem_elem_orbital_iff_strong h hl hu
+    exact incr_mem_elem_orbital_strong h hl hu
   simp only [not_lt] at h
   obtain eq | lt := h.eq_or_lt
   · left
@@ -105,8 +121,13 @@ theorem mem_elem_orbital_mp_strong (f : α ≃o α) (x y : α) :
     rw [eq]
     order
   · right; right
-    exact decr_mem_elem_orbital_iff_strong lt hl hu
+    exact decr_mem_elem_orbital_strong lt hl hu
 
+/--
+  If `f x = y` or there is an integer `z` such that
+  `y` is between `f ^ z` and `f ^ (z+1)`, then
+  `y` is in the orbital of `x` under `f`.
+-/
 theorem mem_elem_orbital_mpr_strong (f : α ≃o α) (x y : α) :
     (f x = y) ∨ (∃z : ℤ, (f ^ z) x ≤ y ∧ y < (f ^ (z + 1)) x) ∨
     (∃z : ℤ, (f ^ (z+1)) x ≤ y ∧ y < (f ^ z) x) → y ∈ elem_orbital f x := by
@@ -126,6 +147,11 @@ theorem mem_elem_orbital_mpr_strong (f : α ≃o α) (x y : α) :
     · use z
       exact hz.le
 
+/--
+  `y` is in the orbital of `x` under `f` if and only if
+  either `f x = y` or there is an integer `z` such that
+  `y` is between `f ^ z` and `f ^ (z+1)`.
+-/
 theorem mem_elem_orbital_strong_iff (f : α ≃o α) (x y : α) :
     y ∈ elem_orbital f x ↔
       (f x = y) ∨ (∃z : ℤ, (f ^ z) x ≤ y ∧ y < (f ^ (z + 1)) x) ∨
@@ -224,15 +250,146 @@ theorem pow_mem_elem_orbital {f : α ≃o α} {x y : α} (z : ℤ)
   · use (z + u)
     simp [←add_pows, hu]
 
+/--
+  If `y` is in the orbital of `x` under `f`,
+  then `f y` is in the orbital of `x` under `f`.
+-/
 theorem pow_mem_elem_orbital_one {f : α ≃o α} {x y : α}
     (y_mem : y ∈ elem_orbital f x) : f y ∈ elem_orbital f x := by
   rw [show f = f ^ 1 by simp]
   exact pow_mem_elem_orbital 1 y_mem
 
+/--
+  If `f` is increasing at `x` and `y` is in the orbital of `x` under `f`,
+  then `f` is increasing at `y`.
+-/
 theorem incr_at_incr_all {f : α ≃o α} {x y : α}
     (incr : isIncreasingAt f x) (y_mem : y ∈ elem_orbital f x) :
     isIncreasingAt f y := by
-  sorry
+  rw [mem_elem_orbital_strong_iff] at y_mem
+  obtain fix | incr | decr := y_mem
+  · rw [isIncreasingAt] at incr ⊢
+    subst_vars
+    exact OrderIso.GCongr.orderIso_apply_lt_apply f incr
+  · obtain ⟨z, hz, hz1⟩ := incr
+    rw [isIncreasingAt]
+    have : (f ^ (z + 1)) x ≤ f y := by simp [add_comm z, ←add_pows, hz]
+    order
+  · obtain ⟨z, hz1, hz⟩ := decr
+    rw [isIncreasingAt] at incr
+    have : (f ^ (z + 1)) x < (f ^ z) x := by order
+    simp [←add_pows] at this
+    order
+
+/--
+  `non_decr_at f x` is either `f` or `f⁻¹`
+  in order to make `x ≤ (non_decr_at f x) x`.
+-/
+def non_decr_at (f : α ≃o α) (x : α) : α ≃o α :=
+  if x ≤ f x then
+    f
+  else
+    f⁻¹
+
+/--
+  Either `x ≤ f x` and `non_decr_at f x = f` or
+  `f x < x` and `non_decr_at f x = f⁻¹`.
+-/
+theorem non_decr_at_def (f : α ≃o α) (x : α) :
+    (x ≤ f x ∧ non_decr_at f x = f) ∨ (f x < x ∧ non_decr_at f x = f⁻¹) := by
+  by_cases h : x ≤ f x
+  · left
+    constructor
+    · trivial
+    · simp only [non_decr_at, ite_eq_left_iff, not_le]
+      order
+  · right
+    constructor
+    · order
+    · simp [non_decr_at, h]
+
+/--
+  We have that `non_decr_at f x` is not decreasing at `x`.
+-/
+theorem non_decr_at_non_decr (f : α ≃o α) (x : α) :
+    ¬isDecreasingAt (non_decr_at f x) x := by
+  obtain eq |inv := non_decr_at_def f x
+  · simp [eq]
+  · simp only [inv, gt_iff_lt, not_lt]
+    exact ((map_inv_lt_iff f⁻¹).mp inv.1).le
+
+/--
+  The orbital of `x` under `f⁻¹` is a subset
+  of the orbital of `x` under `f`.
+-/
+theorem inv_subset_elem_orbital (f : α ≃o α) (x : α) :
+    elem_orbital f⁻¹ x ⊆ elem_orbital f x := by
+  intro y y_mem
+  rw [mem_elem_orbital_iff] at y_mem ⊢
+  obtain ⟨⟨l, hl⟩, ⟨u, hu⟩⟩ := y_mem
+  constructor
+  · use -l
+    simpa using hl
+  · use -u
+    simpa using hu
+
+/--
+  The orbital of `x` under `f` is equal to the orbital
+  of `x` under `f⁻¹`.
+-/
+theorem finv_elem_orbital_eq (f : α ≃o α) (x : α) :
+    elem_orbital f x = elem_orbital f⁻¹ x := by
+  apply Set.eq_of_subset_of_subset
+  · exact inv_subset_elem_orbital f⁻¹ x
+  · exact inv_subset_elem_orbital f x
+
+/--
+  The orbital of `x` under `f` is equal to the orbital
+  of `x` under `non_decr_at f x`.
+-/
+theorem non_decr_eq_elem_orbital (f : α ≃o α) (x : α) :
+    elem_orbital f x = elem_orbital (non_decr_at f x) x := by
+  obtain eq | inv := non_decr_at_def f x
+  · simp [eq]
+  · simp [inv, ←finv_elem_orbital_eq]
+
+/--
+  Given automorphisms `f` and `g` and an element `x`,
+  `combinat_at f g x` is an automorphism who orbital at
+  `x` is the union of that of `f` and `g`.
+-/
+def combine_at (f g : α ≃o α) (x : α) : α ≃o α :=
+  (non_decr_at f x).trans (non_decr_at g x)
+
+/--
+  `combine_at f g x` is not decreasing at `x`.
+-/
+theorem not_decr_combine_at (f g : α ≃o α) (x : α) :
+    ¬isDecreasingAt (combine_at f g x) x := by
+  simp [isDecreasingAt, combine_at]
+  have f_incr := non_decr_at_non_decr f x
+  have g_incr := non_decr_at_non_decr g x
+  simp only [gt_iff_lt, not_lt] at f_incr g_incr
+  have : (non_decr_at g x) x ≤ (non_decr_at g x) ((non_decr_at f x) x) :=
+    OrderIso.GCongr.orderIso_apply_le_apply (non_decr_at g x) f_incr
+  order
+
+theorem combine_at_cases (f g : α ≃o α) (x : α) :
+    (x ≤ f x ∧ x ≤ g x ∧ combine_at f g x = f.trans g) ∨
+    (x ≤ f x ∧ g x < x ∧ combine_at f g x = f.trans g⁻¹) ∨
+    (f x < x ∧ x ≤ g x ∧ combine_at f g x = f⁻¹.trans g) ∨
+    (f x < x ∧ g x < x ∧ combine_at f g x = f⁻¹.trans g⁻¹) := by
+  obtain ⟨le_f, eq_f⟩ | ⟨gt_f, inv_f⟩ := non_decr_at_def f x
+  <;> obtain ⟨le_g, eq_g⟩ | ⟨gt_g, inv_g⟩ := non_decr_at_def g x
+  <;> simp only [combine_at, *]
+  <;> tauto
+
+theorem first_in_combine_maps (f g : α ≃o α) (x y : α)
+    (y_mem : y ∈ elem_orbital f x) : y ∈ elem_orbital (combine_at f g x) x := by
+  rw [non_decr_eq_elem_orbital, mem_elem_orbital_strong_iff] at y_mem
+  obtain fix | incr | decr := y_mem
+  simp only [mem_elem_orbital_iff, combine_at]
+  all_goals sorry
 
 /--
   The set of all non-singleton orbitals of `f`.

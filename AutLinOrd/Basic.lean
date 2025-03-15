@@ -37,6 +37,16 @@ def orbital (f : α ≃o α) :=
   else
     ∅
 
+theorem orbital_def (f : α ≃o α) :
+    (∃x : α, orbital f = elem_orbital f x ∧ ¬∃z : α, elem_orbital f x = {z}) ∨
+    (orbital f = ∅) := by
+  by_cases h : ∃x, x ∈ orbitals f
+  · simp only [orbital, h, ↓reduceDIte]
+    have := h.choose_spec.out
+    left
+    tauto
+  · simp [orbital, h]
+
 /--
   `x` is an element of the orbital of `f`
   if and only if the orbital of `f` is equal to
@@ -67,6 +77,16 @@ theorem pow_mem_orbital {f : α ≃o α} {x : α} (x_mem : x ∈ orbital f) (z :
 theorem pow_mem_orbital_one {f : α ≃o α} {x : α} (x_mem : x ∈ orbital f) :
     f x ∈ orbital f := pow_mem_orbital x_mem 1
 
+/--
+  `orbital f` is `OrdConnected`.
+-/
+theorem isOrdConnected_orbital (f : α ≃o α) : (orbital f).OrdConnected := by
+  obtain ⟨x, hx, hz⟩ | y := orbital_def f
+  · rw [hx]
+    exact elem_orbital_ordConnected f x
+  · rw [y]
+    exact Set.ordConnected_empty
+
 abbrev leftBoundedOrbital (f : α ≃o α) := ∃x, ∀y ∈ orbital f, x < y
 abbrev rightBoundedOrbital (f : α ≃o α) := ∃x, ∀y ∈ orbital f, y < x
 
@@ -95,6 +115,27 @@ theorem reflexive_bubbleR (x : α) : bubbleR x x := by
 -/
 theorem symmetric_bubbleR {x y : α} : bubbleR x y → bubbleR y x := by
   simp [bubbleR, And.comm, eq_comm]
+
+theorem convex_bubbleR {x y z : α} (x_lt_y : x < y) (y_lt_z : y < z)
+    (x_R_z : bubbleR x z) : bubbleR x y := by
+  obtain ⟨f, isBoundedBump_f, ⟨x_mem_f_orbital, z_mem_f_orbital⟩⟩ | eq :=
+    x_R_z
+  · rw [bubbleR]
+    left
+    use f
+    constructor
+    · trivial
+    constructor
+    · trivial
+    have := isOrdConnected_orbital f
+    rw [Set.ordConnected_iff] at this
+    specialize this x x_mem_f_orbital z z_mem_f_orbital (by order)
+    have y_between : y ∈ Set.Icc x z := by
+      simp only [Set.mem_Icc]
+      constructor
+      <;> order
+    exact this y_between
+  · order
 
 def isIncreasingOnOrbital (f : α ≃o α) := ∀x ∈ orbital f, x < f x
 def isDecreasingOnOrbitl (f : α ≃o α) := ∀x ∈ orbital f, f x < x

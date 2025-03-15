@@ -40,6 +40,11 @@ theorem mem_elem_orbit_iff (f : α ≃o α) (x y : α) :
 -/
 def elem_orbital (f : α ≃o α) (x : α) := (elem_orbit f x).ordClosure
 
+theorem elem_orbital_ordConnected (f : α ≃o α) (x : α) :
+    (elem_orbital f x).OrdConnected := by
+  rw [elem_orbital]
+  exact ordConnected_ordClosure (elem_orbit f x)
+
 /--
   The orbit of `x` under `f` is a subset of the
   orbital of `x` under `f`.

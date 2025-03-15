@@ -166,7 +166,7 @@ theorem neg_orbital_at_mem_orbital (f : α ≃o α) (x : α) {y : α}
   If `y` is not in the orbital of `x` under `f`,
   then `(orbital_at f x) y = y`.
 -/
-theorem orbital_at_not_mem_orbital (f : α ≃o α) (x y : α)
+theorem orbital_at_not_mem_orbital {f : α ≃o α} {x y : α}
     (y_not_mem : y ∉ elem_orbital f x) : (orbital_at f x) y = y := by
   simp only [orbital_at, RelIso.coe_fn_mk, Equiv.coe_fn_mk, ite_eq_right_iff]
   intro h

@@ -54,3 +54,41 @@ $x \sim_b y$ if and only if there exists a
 bounded bump such that $x$ and $y$ are in its
 orbital or $x = y$.
 \end{definition}
+
+\begin{theorem}
+    \label{refl_symm_bubbleR}
+    \uses{bubbleR}
+    \lean{reflexive_bubbleR, symmetric_bubbleR}\leanok
+The relation $\sim_b$ is reflexive and symmetric.
+\end{theorem}
+\begin{proof}\leanok
+The definition is clearly reflexive and the definition is symmetric in
+$x$ and $y$.
+\end{proof}
+
+\begin{theorem}
+    \label{convex_bubbleR}
+    \uses{bubbleR}
+    \lean{convex_bubbleR}\leanok
+The relation $\sim_b$ is convex.
+\end{theorem}
+\begin{proof}\leanok
+Let $x\in X$. We want to show that the $\sim_b$-equivalence class
+of $x$ is an interval.
+Let $y$ and $z$ be elements of $X$ such that
+$x < y < z$ and $x \sim_b z$. It cannot be that $x = z$
+and so we must have that $x,z \in O(f)$ for some bounded bump
+$f\colon X \to X$. Since $O(f)$ is an interval and $x < y < z$,
+we have that $y \in O(f)$. Thus, $x\sim_b y$ and so we are done.
+\end{proof}
+
+\begin{theorem}
+    \label{trans_bubbleR}
+    \uses{bubbleR}
+The relation $\sim_b$ is transitive.
+\end{theorem}
+\begin{proof}
+Let $x$, $y$, and $z$ be elements of $X$ such that
+$x \sim_b y$ and $y \sim_b z$. If $x = y$ or $y =z$,
+then we are done.
+\end{proof}

@@ -46,7 +46,7 @@ theorem ordConnected_ordClosure (s : Set α) :
   If `s` is a subset of `t` and `t` is `OrdConnected`,
   then `s.ordClosure` is a subset of `t`.
 -/
-theorem ordClosure_subset_ordConnected (s : Set α) {t : Set α}
+theorem ordClosure_subset_ordConnected {s t : Set α}
     (s_sub_t : s ⊆ t) (ht : t.OrdConnected) : s.ordClosure ⊆ t := by
   intro z hz
   obtain ⟨x, hx, y, hy , hxy⟩ := mem_ordClosure.mp hz
@@ -64,7 +64,7 @@ theorem inter_eq_closure (s : Set α) :
     exact ⟨subset_ordClosure s, ordConnected_ordClosure s⟩
   · simp only [Set.subset_sInter_iff, Set.mem_setOf_eq, and_imp]
     intro t s_subset_t t_ordConnected
-    exact ordClosure_subset_ordConnected s s_subset_t t_ordConnected
+    exact ordClosure_subset_ordConnected s_subset_t t_ordConnected
 
 /--
   If every element of a set `t` is upper and lower bounded
@@ -95,5 +95,16 @@ theorem ordClosure_eq_ordClosure {s t : Set α}
   apply Set.eq_of_subset_of_subset
   · exact ordClosure_subset_ordClosure s_between_t
   · exact ordClosure_subset_ordClosure t_between_s
+
+/--
+  If `s` is `OrdConnected`, then
+  `s.ordClosure = s`.
+-/
+theorem ordClosure_of_ordConnected {s : Set α} (ord : s.OrdConnected) :
+    s.ordClosure = s := by
+  have s_sub_closure := subset_ordClosure s
+  have closure_sub_s : s.ordClosure ⊆ s :=
+    ordClosure_subset_ordConnected (by simp) ord
+  exact Set.Subset.antisymm closure_sub_s s_sub_closure
 
 end OrdClosure

@@ -4,7 +4,7 @@ import AutLinOrd.OrdClosure
 import Mathlib.Algebra.Group.Subgroup.Actions
 import Mathlib.Algebra.Group.Subgroup.ZPowers.Basic
 import Mathlib.Data.Int.LeastGreatest
-import Mathlib.GroupTheory.GroupAction.Defs
+import Mathlib.GroupTheory.GroupAction.Basic
 
 variable {α : Type*} [LinearOrder α]
 
@@ -34,6 +34,34 @@ theorem swap_between {f : α ≃o α} {x y : α}
 theorem mem_elem_orbit_iff (f : α ≃o α) (x y : α) :
     y ∈ elem_orbit f x ↔ ∃z : ℤ, (f^z) x = y := by
   simp [elem_orbit, MulAction.mem_orbit_iff, HSMul.hSMul, SMul.smul]
+
+/--
+  `x` is in the orbit of `x` under `f`.
+-/
+theorem reflexive_elem_orbit (f : α ≃o α) (x : α) : x ∈ elem_orbit f x := by
+  rw [mem_elem_orbit_iff]
+  use 0
+  simp
+
+/--
+  If `f x = x`, then the orbit of `x` under `f`
+  is `{x}`.
+-/
+theorem fix_orbit_eq {f : α ≃o α} {x : α} (fix : f x = x) :
+    elem_orbit f x = {x} := by
+  ext z
+  constructor
+  · intro h
+    rw [mem_elem_orbit_iff] at h
+    obtain ⟨m, hm⟩ := h
+    rw [Set.mem_singleton_iff]
+    have : (f ^ m) x = x := by
+      exact fix_pow_fix fix m
+    order
+  · intro h
+    rw [Set.mem_singleton_iff] at h
+    rw [h]
+    exact reflexive_elem_orbit f x
 
 /--
   The orbital of `x` under an automorphism `f`.
@@ -181,7 +209,7 @@ theorem mem_elem_orbital_reflexive (f : α ≃o α) (x : α) :
   If `y` is in the orbital of `x` under `f`,
   then `x` is in the orbital of `y` under `f`.
 -/
-theorem mem_elem_orbital_symmetric (f : α ≃o α) (x y : α)
+theorem mem_elem_orbital_symmetric {f : α ≃o α} {x y : α}
     (y_mem : y ∈ elem_orbital f x) : x ∈ elem_orbital f y := by
   simp only [mem_elem_orbital_iff] at y_mem ⊢
   exact swap_between y_mem
@@ -266,3 +294,22 @@ theorem pow_mem_elem_orbital_one {f : α ≃o α} {x y : α}
     (y_mem : y ∈ elem_orbital f x) : f y ∈ elem_orbital f x := by
   rw [show f = f ^ 1 by simp]
   exact pow_mem_elem_orbital 1 y_mem
+
+/--
+  If `f x = x`, then the orbital of `x` under `f`
+  is `{x}`.
+-/
+theorem fix_orbital_eq {f : α ≃o α} {x : α}
+    (fix : f x = x) : elem_orbital f x = {x} := by
+  rw [elem_orbital, fix_orbit_eq fix]
+  exact ordClosure_of_ordConnected Set.ordConnected_singleton
+
+/--
+  If `y` is in the orbital of `x` under `f`
+  and `f y = y`, then `x = y`.
+-/
+theorem fix_mem_orbital_eq {f : α ≃o α} {x y : α}
+    (y_mem : y ∈ elem_orbital f x) (fix : f y = y) : x = y := by
+  have x_mem := mem_elem_orbital_symmetric y_mem
+  simp only [fix_orbital_eq fix, Set.mem_singleton_iff] at x_mem
+  trivial

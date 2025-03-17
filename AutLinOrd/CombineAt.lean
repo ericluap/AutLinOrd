@@ -339,3 +339,37 @@ theorem f_g_orbital_subset_combine_orbital (f g : α ≃o α) (x : α) :
     exact f_in_combine_map g hz
   · intro z hz
     exact g_in_combine_map f hz
+
+theorem combine_orbital_subset_f_g_orbital (f g : α ≃o α) (x : α) :
+    elem_orbital (combine_at f g x) x ⊆
+      elem_orbital f x ∪ elem_orbital g x := by
+  intro z hz
+  -- assume that `z` is in neither orbital of `x`
+  by_contra!
+  simp only [Set.mem_union, not_or] at this
+  obtain ⟨z_not_mem_f, z_not_mem_g⟩ := this
+  rw [non_decr_eq_elem_orbital] at z_not_mem_f z_not_mem_g
+  -- then `z` must be fixed by `combine_at f g x`
+  have : combine_at f g x z = z := by
+    simp [combine_at, orbital_at_non_decr, orbital_at,
+      z_not_mem_f, z_not_mem_g]
+  -- since `z` is fixed and in the orbital of `combine_at f g x`, `x = z`
+  have : x = z := by
+    exact fix_mem_orbital_eq hz this
+  -- and so `z` is not in the orbital of `z` under `f`
+  simp [this, ←non_decr_eq_elem_orbital] at z_not_mem_f
+  -- but this is a contradiction
+  have : z ∈ elem_orbital f z := mem_elem_orbital_reflexive f z
+  contradiction
+
+/--
+  The orbital of `x` under `combine_at f g x` is equal to
+  the union of the orbital of `x` under `f` and the
+  orbital of `x` under `g`.
+-/
+theorem combine_orbital_eq_union (f g : α ≃o α) (x : α) :
+    elem_orbital (combine_at f g x) x =
+      elem_orbital f x ∪ elem_orbital g x := by
+  apply Set.eq_of_subset_of_subset
+  · exact combine_orbital_subset_f_g_orbital f g x
+  · exact f_g_orbital_subset_combine_orbital f g x

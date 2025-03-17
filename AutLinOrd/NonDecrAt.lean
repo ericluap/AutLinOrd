@@ -137,6 +137,11 @@ theorem non_decr_eq_elem_orbital (f : α ≃o α) (x : α) :
   · simp [eq]
   · simp [inv, ←finv_elem_orbital_eq]
 
+  theorem mem_orig_elem_orbital_non_decr {f : α ≃o α} {x y : α}
+    (y_mem : y ∈ elem_orbital f x) : y ≤ (non_decr_at f x) y :=
+  non_decr_at_non_decr_all (non_decr_at_non_decr f x)
+    ((non_decr_eq_elem_orbital f x) ▸ y_mem)
+
 theorem mem_elem_orbital_image_non_decr {f : α ≃o α} {x y : α}
     (y_mem : y ∈ elem_orbital (non_decr_at f x) x) :
     f y ≤ (non_decr_at f x) y := by
@@ -145,6 +150,16 @@ theorem mem_elem_orbital_image_non_decr {f : α ≃o α} {x y : α}
   · have : f y < y := decr_at_decr_all inv
       ((non_decr_eq_elem_orbital f x) ▸ y_mem)
     have : y ≤ (non_decr_at f x) y := mem_elem_orbital_non_decr y_mem
+    order
+
+theorem mem_orig_elem_orbital_image_non_decr {f : α ≃o α} {x y : α}
+    (y_mem : y ∈ elem_orbital f x) :
+    f y ≤ (non_decr_at f x) y := by
+  obtain eq | ⟨inv, f_eq⟩ := non_decr_at_def f x
+  · simp [eq]
+  · have : f y < y := decr_at_decr_all inv y_mem
+    have : y ≤ (non_decr_at f x) y := mem_elem_orbital_non_decr
+      ((non_decr_eq_elem_orbital f x) ▸ y_mem)
     order
 
 theorem pow_orig_mem_non_decr_elem_orbital {f : α ≃o α} {x y : α}

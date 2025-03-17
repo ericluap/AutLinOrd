@@ -5,5 +5,6 @@ import AutLinOrd.IncrDecr
 import AutLinOrd.MulAction
 import AutLinOrd.NonDecrAt
 import AutLinOrd.OrbitalAt
+import AutLinOrd.OrbitalAtNonDecr
 import AutLinOrd.OrdClosure
 import AutLinOrd.Pow

@@ -28,12 +28,25 @@ theorem exists_orbital {f : α ≃o α} (is_bump : isBump f) :
   simp [hx]
 
 open Classical in
+/--
+  If `f` is a bump, then
+  `orbital f` is its unique orbital.
+  Otherwise, `orbital f` is the empty set.
+-/
 def orbital (f : α ≃o α) :=
   if h : isBump f then
     (exists_orbital h).choose
   else
     ∅
 
+/--
+  Either there exists an `x` such that
+  the orbital of `f` is equal to the orbital of `x` under `f`,
+  the orbital of `x` under `f` is not a singleton,
+  and `f` is a bump,
+  or
+  the orbital of `f` is the empty set.
+-/
 theorem orbital_def (f : α ≃o α) :
     (∃x : α, orbital f = elem_orbital f x ∧ ¬∃z : α, elem_orbital f x = {z}
       ∧ isBump f) ∨
@@ -46,7 +59,7 @@ theorem orbital_def (f : α ≃o α) :
   · simp [orbital, h]
 
 /--
-  If `x` is an element of `f`, then
+  If `x` is an element of the orbital of `f`, then
   `f` is a bump.
 -/
 theorem mem_orbital_iff_bump {f : α ≃o α} {x : α}
@@ -108,9 +121,6 @@ theorem isOrdConnected_orbital (f : α ≃o α) : (orbital f).OrdConnected := by
   · rw [y]
     exact Set.ordConnected_empty
 
-theorem nonempty_mem (s : Set α) (non : Nonempty s) : ∃x : α, x ∈ s := by
-  exact nonempty_subtype.mp non
-
 /--
   If `s` is an orbital of `combine_at f g x`,
   then `s` is equal to the orbital of `x` under `combine_at f g x`.
@@ -131,7 +141,7 @@ theorem elem_orbital_combine_mem_orbitals {f g : α ≃o α} {x : α}
     (not_fix : (combine_at f g x) x ≠ x) :
     elem_orbital (combine_at f g x) x ∈ orbitals (combine_at f g x) := by
   use x
-  simp
+  simp only [not_exists, true_and]
   intro y singleton_orbital
   have := singleton_orbital_swap singleton_orbital
   have := fix_iff_singleton_orbital.mpr.mt not_fix
@@ -139,7 +149,7 @@ theorem elem_orbital_combine_mem_orbitals {f g : α ≃o α} {x : α}
 
 theorem mem_orbital_combine_isBump {f g : α ≃o α} {x : α}
     (x_mem_f : x ∈ orbital f) : isBump (combine_at f g x) := by
-  simp [isBump]
+  simp only [isBump, Set.ncard_eq_one]
   use (elem_orbital (combine_at f g x) x)
   ext s
   constructor
@@ -197,6 +207,11 @@ theorem reflexive_bubbleR (x : α) : bubbleR x x := by
 theorem symmetric_bubbleR {x y : α} : bubbleR x y → bubbleR y x := by
   simp [bubbleR, And.comm, eq_comm]
 
+/--
+  Let `x < y` and `y < z`.
+  If `x` is bubble related to `z`,
+  then `x` is bubble related to `y`.
+-/
 theorem convex_bubbleR {x y z : α} (x_lt_y : x < y) (y_lt_z : y < z)
     (x_R_z : bubbleR x z) : bubbleR x y := by
   obtain ⟨f, isBoundedBump_f, ⟨x_mem_f_orbital, z_mem_f_orbital⟩⟩ | eq :=
@@ -224,6 +239,11 @@ def isDecreasingOnOrbitl (f : α ≃o α) := ∀x ∈ orbital f, f x < x
 def isNotDecreasingOnOrbital (f : α ≃o α) := ∀x ∈ orbital f, x ≤ f x
 def isNotIncreasingOnOrbital (f : α ≃o α) := ∀x ∈ orbital f, f x ≤ x
 
+/--
+  If `f` and `g` are bumps and their orbitals intersect,
+  then there exists a bump `h` such that the orbital of `h`
+  is the union of the orbitals of `f` and `g`.
+-/
 theorem combine_bumps {f g : α ≃o α}
     (hf : isBump f) (hg : isBump g) (inter : ∃x, x ∈ orbital f ∩ orbital g) :
     ∃h : α ≃o α, isBump h ∧ orbital h = orbital f ∪ orbital g := by

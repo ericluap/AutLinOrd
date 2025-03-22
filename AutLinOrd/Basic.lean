@@ -137,6 +137,11 @@ theorem mem_combine_orbitals_eq_elem_orbital {f g : α ≃o α} {x : α} {s : Se
   simp only [not_not] at this
   exact mem_elem_orbital_eq this
 
+/--
+  If `(combine_at f g x) ≠ x`, then
+  the orbital of `x` under `combine_at f g x`
+  is an orbital of `combine_at f g x`
+-/
 theorem elem_orbital_combine_mem_orbitals {f g : α ≃o α} {x : α}
     (not_fix : (combine_at f g x) x ≠ x) :
     elem_orbital (combine_at f g x) x ∈ orbitals (combine_at f g x) := by
@@ -147,6 +152,10 @@ theorem elem_orbital_combine_mem_orbitals {f g : α ≃o α} {x : α}
   have := fix_iff_singleton_orbital.mpr.mt not_fix
   contradiction
 
+/--
+  If `x` is in the orbital of `f`, then
+  `combine_at f g x` is a bump.
+-/
 theorem mem_orbital_combine_isBump {f g : α ≃o α} {x : α}
     (x_mem_f : x ∈ orbital f) : isBump (combine_at f g x) := by
   simp only [isBump, Set.ncard_eq_one]
@@ -163,7 +172,7 @@ theorem mem_orbital_combine_isBump {f g : α ≃o α} {x : α}
 /--
   If `x` is in the orbital of `f` and `g`,
   then the orbital of `combine_at f g` is
-  equal to the union of the orbital `f` and `g`.
+  equal to the union of the orbitals of `f` and `g`.
 -/
 theorem intersect_orbital_combine_at {f g : α ≃o α} {x : α}
     (x_mem_f : x ∈ orbital f) (x_mem_g : x ∈ orbital g) :

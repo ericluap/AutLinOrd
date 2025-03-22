@@ -354,13 +354,11 @@ theorem combine_orbital_subset_f_g_orbital (f g : α ≃o α) (x : α) :
     simp [combine_at, orbital_at_non_decr, orbital_at,
       z_not_mem_f, z_not_mem_g]
   -- since `z` is fixed and in the orbital of `combine_at f g x`, `x = z`
-  have : x = z := by
-    exact fix_mem_orbital_eq hz this
+  have : x = z := fix_mem_orbital_eq hz this
   -- and so `z` is not in the orbital of `z` under `f`
   simp [this, ←non_decr_eq_elem_orbital] at z_not_mem_f
   -- but this is a contradiction
-  have : z ∈ elem_orbital f z := mem_elem_orbital_reflexive f z
-  contradiction
+  exact z_not_mem_f (mem_elem_orbital_reflexive f z)
 
 /--
   The orbital of `x` under `combine_at f g x` is equal to
@@ -373,3 +371,55 @@ theorem combine_orbital_eq_union (f g : α ≃o α) (x : α) :
   apply Set.eq_of_subset_of_subset
   · exact combine_orbital_subset_f_g_orbital f g x
   · exact f_g_orbital_subset_combine_orbital f g x
+
+/--
+  If `y` is not in the orbital of `x` under `combine_at f g x`,
+  then `(combine_at f g x) y = y`.
+-/
+theorem not_mem_orbital_at_combine_at_eq {f g : α ≃o α} {x y : α}
+    (y_not_mem : y ∉ elem_orbital (combine_at f g x) x) :
+    (combine_at f g x) y = y := by
+  simp only [combine_orbital_eq_union, Set.mem_union, not_or] at y_not_mem
+  obtain ⟨y_not_mem_f, y_not_mem_g⟩ := y_not_mem
+  rw [combine_at, OrderIso.trans_apply,
+    not_mem_orbital_at_non_decr_eq y_not_mem_f,
+    not_mem_orbital_at_non_decr_eq y_not_mem_g]
+
+/--
+  If `y` is not in the orbital of `x` under `(combine_at f g x)`,
+  then the orbital of `y` under `(combine_at f g x)` is `{y}`.
+-/
+theorem not_mem_orbital_singleton {f g : α ≃o α} {x y : α}
+    (y_not_mem : y ∉ elem_orbital (combine_at f g x) x) :
+    elem_orbital (combine_at f g x) y = {y} :=
+  fix_iff_singleton_orbital.mp (not_mem_orbital_at_combine_at_eq y_not_mem)
+
+/--
+  If `combine_at f g x` fixes `x`,
+  then it fixes everything.
+-/
+theorem fix_at_fix_all {f g : α ≃o α} {x : α} (fix : (combine_at f g x) x = x)
+    (y : α) : (combine_at f g x) y = y := by
+  by_cases h : y ∈ elem_orbital (combine_at f g x) x
+  · simp only [mem_elem_orbital_iff, fix_pow_fix fix, exists_const] at h
+    have : x = y := by
+      -- order [h.1, h.2]
+      have := h.1
+      have := h.2
+      order
+    simp [←this, fix]
+  · exact not_mem_orbital_at_combine_at_eq h
+
+/--
+  If the orbital of `y` under `combine_at f g x`
+  is not `{y}`, then the
+  orbital of `x` under `combine_at f g x`
+  is not `{x}`.
+-/
+theorem not_singleton_at_not_singleton {f g : α ≃o α} {x y : α}
+    (not_single : ¬elem_orbital (combine_at f g x) y = {y}) :
+    ¬elem_orbital (combine_at f g x) x = {x} := by
+  simp only [← fix_iff_singleton_orbital] at not_single
+  have := (fix_at_fix_all (y := y)).mt not_single
+  rw [fix_iff_singleton_orbital] at this
+  exact this

@@ -88,3 +88,13 @@ theorem not_mem_orbital_at_non_decr_eq {f : α ≃o α} {x y : α}
   intro h
   rw [←non_decr_eq_elem_orbital] at h
   contradiction
+
+/--
+  If `(orbital_at_non_decr f x) x = x`,
+  then `f x = x`.
+-/
+theorem fix_orig_fix {f : α ≃o α} {x : α}
+    (fix : orbital_at_non_decr f x x = x) : f x = x := by
+  rw [mem_orbital_at_non_decr_eq] at fix
+  · exact non_decr_at_fix_orig_fix fix
+  · exact mem_elem_orbital_reflexive f x

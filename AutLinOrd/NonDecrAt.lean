@@ -174,3 +174,15 @@ theorem pow_orig_mem_non_decr_elem_orbital_one {f : α ≃o α} {x y : α}
     (y_mem : y ∈ elem_orbital (non_decr_at f x) x) :
     f y ∈ elem_orbital (non_decr_at f x) x :=
   pow_orig_mem_non_decr_elem_orbital y_mem 1
+
+/--
+  If `(non_decr_at f x) x = x`,
+  then `f x = x`.
+-/
+theorem non_decr_at_fix_orig_fix {f : α ≃o α} {x : α}
+    (fix : non_decr_at f x x = x) : f x = x := by
+  obtain ⟨b, eq⟩ | ⟨a, eq⟩ := non_decr_at_def f x
+  · simpa [eq] using fix
+  · have : x < f⁻¹ x := (map_inv_lt_iff f⁻¹).mp a
+    rw [←eq] at this
+    order

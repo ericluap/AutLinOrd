@@ -305,6 +305,28 @@ theorem fix_orbital_eq {f : α ≃o α} {x : α}
   exact ordClosure_of_ordConnected Set.ordConnected_singleton
 
 /--
+  If `f x ≠ x`, then the orbital of `x` under `f`
+  is not `{x}`.
+-/
+theorem not_fix_orbital_not_singleton {f : α ≃o α} {x : α}
+    (not_fix : f x ≠ x) : elem_orbital f x ≠ {x} := by
+  intro orbital_singleton
+  have : f x ∈ elem_orbital f x :=
+    pow_mem_elem_orbital_one (mem_elem_orbital_reflexive f x)
+  simp only [orbital_singleton, Set.mem_singleton_iff] at this
+  contradiction
+
+/--
+  `f x = x` if and only if
+  the orbital of `x` under `f` is `{x}`.
+-/
+theorem fix_iff_singleton_orbital {f : α ≃o α} {x : α} :
+    f x = x ↔ elem_orbital f x = {x} := by
+  constructor
+  · exact fun a ↦ fix_orbital_eq a
+  · simpa using not_fix_orbital_not_singleton.mt
+
+/--
   If `y` is in the orbital of `x` under `f`
   and `f y = y`, then `x = y`.
 -/
@@ -313,3 +335,36 @@ theorem fix_mem_orbital_eq {f : α ≃o α} {x y : α}
   have x_mem := mem_elem_orbital_symmetric y_mem
   simp only [fix_orbital_eq fix, Set.mem_singleton_iff] at x_mem
   trivial
+
+/--
+  If the orbital of `x` under `f` is `{y}`,
+  then it is `{x}`.
+-/
+theorem singleton_orbital_swap {f : α ≃o α} {x y : α}
+    (singleton_orbital : elem_orbital f x = {y}) : elem_orbital f x = {x} := by
+  have : x ∈ elem_orbital f x := mem_elem_orbital_reflexive f x
+  simp only [singleton_orbital, Set.mem_singleton_iff] at this
+  subst_vars
+  trivial
+
+/--
+  If the orbital of `x` under `f` is not `{x}`, then for any
+  element `y`, the orbital of `x` under `f` is not `{y}`.
+-/
+theorem not_singleton_at_not_singleton_all {f : α ≃o α} {x : α}
+    (not_single : elem_orbital f x ≠ {x}) (y : α) :
+    elem_orbital f x ≠ {y} := by
+  intro h
+  absurd not_single
+  exact singleton_orbital_swap h
+
+/--
+  If the orbital of `x` under `f` is not equal
+  to the orbital of `y` under `f`, then `x`
+  is not in the orbital of `y` under `f`.
+-/
+theorem neq_orbitals_not_mem_orbital {f : α ≃o α} {x y : α}
+    (neq_orbitals : elem_orbital f x ≠ elem_orbital f y) :
+    x ∉ elem_orbital f y := by
+  intro hx
+  exact (neq_orbitals (mem_elem_orbital_eq hx)).elim

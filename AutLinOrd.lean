@@ -4,6 +4,7 @@ import AutLinOrd.ElemOrbital
 import AutLinOrd.IncrDecr
 import AutLinOrd.MulAction
 import AutLinOrd.NonDecrAt
+import AutLinOrd.Orbital
 import AutLinOrd.OrbitalAt
 import AutLinOrd.OrbitalAtNonDecr
 import AutLinOrd.OrdClosure

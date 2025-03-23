@@ -68,6 +68,9 @@ theorem fix_orbit_eq {f : α ≃o α} {x : α} (fix : f x = x) :
 -/
 def elem_orbital (f : α ≃o α) (x : α) := (elem_orbit f x).ordClosure
 
+/--
+  The orbital of `x` under `f` is `OrdConnected`.
+-/
 theorem elem_orbital_ordConnected (f : α ≃o α) (x : α) :
     (elem_orbital f x).OrdConnected := by
   rw [elem_orbital]

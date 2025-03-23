@@ -137,11 +137,19 @@ theorem non_decr_eq_elem_orbital (f : α ≃o α) (x : α) :
   · simp [eq]
   · simp [inv, ←finv_elem_orbital_eq]
 
+/--
+  If `y` is in the orbital of `x` under `f`,
+  then `y ≤ (non_decr_at f x) y`.
+-/
   theorem mem_orig_elem_orbital_non_decr {f : α ≃o α} {x y : α}
     (y_mem : y ∈ elem_orbital f x) : y ≤ (non_decr_at f x) y :=
   non_decr_at_non_decr_all (non_decr_at_non_decr f x)
     ((non_decr_eq_elem_orbital f x) ▸ y_mem)
 
+/--
+  If `y` is in the oribtal of `x` under `non_decr_at f x`,
+  then `f y ≤ (non_decr_at f x) y`.
+-/
 theorem mem_elem_orbital_image_non_decr {f : α ≃o α} {x y : α}
     (y_mem : y ∈ elem_orbital (non_decr_at f x) x) :
     f y ≤ (non_decr_at f x) y := by
@@ -152,6 +160,10 @@ theorem mem_elem_orbital_image_non_decr {f : α ≃o α} {x y : α}
     have : y ≤ (non_decr_at f x) y := mem_elem_orbital_non_decr y_mem
     order
 
+/--
+  If `y` is in the orbital of `f` under `x`,
+  then `f y ≤ (non_decr_at f x) y`.
+-/
 theorem mem_orig_elem_orbital_image_non_decr {f : α ≃o α} {x y : α}
     (y_mem : y ∈ elem_orbital f x) :
     f y ≤ (non_decr_at f x) y := by
@@ -162,6 +174,11 @@ theorem mem_orig_elem_orbital_image_non_decr {f : α ≃o α} {x y : α}
       ((non_decr_eq_elem_orbital f x) ▸ y_mem)
     order
 
+/--
+  If `y` is in the orbital of `x` under `non_decr_at f x`,
+  then for any integer `z`,
+  `(f ^ z) y` is in the orbital of `x` under `non_decr_at f x`.
+-/
 theorem pow_orig_mem_non_decr_elem_orbital {f : α ≃o α} {x y : α}
     (y_mem : y ∈ elem_orbital (non_decr_at f x) x) (z : ℤ) :
     (f ^ z) y ∈ elem_orbital (non_decr_at f x) x := by
@@ -170,6 +187,10 @@ theorem pow_orig_mem_non_decr_elem_orbital {f : α ≃o α} {x y : α}
   rw [non_decr_eq_elem_orbital] at this
   exact this
 
+/--
+  If `y` is in the orbital of `x` under `non_decr_at f x`,
+  then `f y` is in the orbital of `x` under `non_decr_at f x`.
+-/
 theorem pow_orig_mem_non_decr_elem_orbital_one {f : α ≃o α} {x y : α}
     (y_mem : y ∈ elem_orbital (non_decr_at f x) x) :
     f y ∈ elem_orbital (non_decr_at f x) x :=

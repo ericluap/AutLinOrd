@@ -1,4 +1,4 @@
-import Mathlib.Order.UpperLower.Basic
+import Mathlib.Order.UpperLower.Closure
 import Mathlib.Tactic.Order
 
 section OrdClosure

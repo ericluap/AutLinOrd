@@ -1,6 +1,6 @@
 import Mathlib.Algebra.Group.NatPowAssoc
+import Mathlib.Algebra.Order.Group.End
 import Mathlib.Order.Hom.Basic
-import Mathlib.Order.RelIso.Group
 
 variable {α : Type*} [LinearOrder α]
 

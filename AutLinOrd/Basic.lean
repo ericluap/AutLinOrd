@@ -3,12 +3,22 @@ import AutLinOrd.Orbital
 
 variable {α : Type*} [LinearOrder α]
 
+/--
+  The orbital of `f` is a left bounded orbital
+  if there exists an element smaller than
+  everything in the orbital of `f`.
+-/
 abbrev leftBoundedOrbital (f : α ≃o α) := ∃x, ∀y ∈ orbital f, x < y
+/--
+  The orbital of `f` is a right bounded orbital
+  if there exists an element smaller than
+  everything in the orbital of `f`.
+-/
 abbrev rightBoundedOrbital (f : α ≃o α) := ∃x, ∀y ∈ orbital f, y < x
 
 /--
   A bounded bump is a bump whose
-  only orbital is bounded to the left or right.
+  only orbital is either bounded to the left or to the right.
 -/
 def isBoundedBump (f : α ≃o α) :=
   isBump f ∧ (leftBoundedOrbital f ∨ rightBoundedOrbital f)
@@ -55,7 +65,8 @@ theorem right_combine_bounded {f g : α ≃o α} {x : α}
 
 /--
   Two points are related by `bubbleR` if they
-  are both in the orbital of a bounded bump.
+  are both in the orbital of a bounded bump
+  (or are equal).
 -/
 abbrev bubbleR (x y : α) :=
   (∃f : α ≃o α, isBoundedBump f ∧ x ∈ orbital f ∧ y ∈ orbital f) ∨ x = y

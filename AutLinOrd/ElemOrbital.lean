@@ -1,10 +1,12 @@
 import AutLinOrd.IncrDecr
-import AutLinOrd.MulAction
+import AutLinOrd.OrdClosure
+import AutLinOrd.IncrDecr
 import AutLinOrd.OrdClosure
 import Mathlib.Algebra.Group.Subgroup.Actions
 import Mathlib.Algebra.Group.Subgroup.ZPowers.Basic
+import Mathlib.Algebra.Order.Group.Action.End
 import Mathlib.Data.Int.LeastGreatest
-import Mathlib.GroupTheory.GroupAction.Basic
+import Mathlib.GroupTheory.GroupAction.Defs
 
 variable {α : Type*} [LinearOrder α]
 

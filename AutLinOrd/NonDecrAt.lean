@@ -197,13 +197,80 @@ theorem pow_orig_mem_non_decr_elem_orbital_one {f : α ≃o α} {x y : α}
   pow_orig_mem_non_decr_elem_orbital y_mem 1
 
 /--
-  If `(non_decr_at f x) x = x`,
-  then `f x = x`.
+  If `y` is in the orbital of `x` under `f`,
+  then `non_decr_at f x ^ z` is in the orbital of `x` under `f`.
 -/
-theorem non_decr_at_fix_orig_fix {f : α ≃o α} {x : α}
-    (fix : non_decr_at f x x = x) : f x = x := by
+theorem orig_mem_orbital_pow_mem_orbital {f : α ≃o α} {x y : α}
+    (y_mem : y ∈ elem_orbital f x) (z : ℤ) :
+    (non_decr_at f x ^ z) y ∈ elem_orbital f x := by
+  rw [non_decr_eq_elem_orbital] at y_mem ⊢
+  exact pow_mem_elem_orbital z y_mem
+
+/--
+  `(non_decr_at f x) x = x` if and only if `f x = x`.
+-/
+theorem non_decr_at_fix_iff_orig_fix {f : α ≃o α} {x : α} :
+   (non_decr_at f x) x = x ↔ f x = x := by
   obtain ⟨b, eq⟩ | ⟨a, eq⟩ := non_decr_at_def f x
-  · simpa [eq] using fix
+  · simp [eq]
   · have : x < f⁻¹ x := (map_inv_lt_iff f⁻¹).mp a
     rw [←eq] at this
-    order
+    constructor
+    <;> order
+
+/--
+  If `(non_decr_at f x) x ≠ x`, then
+  `y` is an element of the orbital of `x` under `f`
+  if and only if
+  there exists a `z` such that
+  `(non_decr_at f x)^z x ≤ y < (non_decr_at f x)^(z+1) x`.
+-/
+theorem not_fix_non_decr_mem_orbital_strong_iff {f : α ≃o α} {x y : α}
+    (not_fix : (non_decr_at f x) x ≠ x) : y ∈ elem_orbital f x ↔
+    (∃z : ℤ, ((non_decr_at f x) ^ z) x ≤ y ∧
+    y < ((non_decr_at f x) ^ (z + 1)) x) := by
+  constructor
+  · intro x_mem_f
+    rw [non_decr_eq_elem_orbital] at x_mem_f
+    obtain fix | incr | decr :=
+      (mem_elem_orbital_strong_iff (non_decr_at f x) x y).mp x_mem_f
+    · use 1
+      simp only [zpow_one, fix, le_refl, Int.reduceAdd, true_and]
+      simp only [←fix, show (2 : ℤ) = 1+1 by simp,
+        ←add_pows, zpow_one, OrderIso.lt_iff_lt]
+      obtain lt | eq := (non_decr_at_non_decr f x).lt_or_eq
+      · trivial
+      · order
+    · trivial
+    · obtain ⟨z, hlz, huz⟩ := decr
+      simp [←add_pows] at hlz
+      have : (non_decr_at f x ^ z) ((non_decr_at f x) x) <
+          (non_decr_at f x ^ z) x := by order
+      simp only [OrderIso.lt_iff_lt] at this
+      have : x ≤ (non_decr_at f x) x := non_decr_at_non_decr f x
+      order
+  · intro incr
+    rw [non_decr_eq_elem_orbital, mem_elem_orbital_strong_iff]
+    right
+    left
+    trivial
+
+/--
+  If `z < w`,
+  then `(non_decr_at f x ^ z) x ≤ (non_decr_at f x ^ w) x`.
+-/
+theorem non_decr_at_pow_gt_ge {f : α ≃o α} {x : α} {z w : ℤ}
+    (pow_gt : z < w) : (non_decr_at f x ^ z) x ≤ (non_decr_at f x ^ w) x := by
+  obtain eq | lt := non_decr_at_non_decr f x |>.eq_or_lt
+  · simp [fix_pow_fix eq.symm z, fix_pow_fix eq.symm w]
+  · exact (incr_pow_gt_gt lt pow_gt).le
+
+/--
+  If `z ≤ w`,
+  then `(non_decr_at f x ^ z) x ≤ (non_decr_at f x ^ w) x`.
+-/
+theorem non_decr_at_pow_ge_ge {f : α ≃o α} {x : α} {z w : ℤ}
+    (pow_ge : z ≤ w) : (non_decr_at f x ^ z) x ≤ (non_decr_at f x ^ w) x := by
+  obtain eq_pow | lt_pow := pow_ge.eq_or_lt
+  · simp [eq_pow]
+  · exact non_decr_at_pow_gt_ge lt_pow

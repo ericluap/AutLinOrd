@@ -147,7 +147,7 @@ theorem mem_get_z {f : α ≃o α} {x y : α} (not_fix : f x ≠ x)
 /--
   If `y` is in `z_interval f x z`, then `get_z` of `y` is `z`.
 -/
-theorem get_z_mem {f : α ≃o α} {x y : α} (not_fix : f x ≠ x) (z : ℤ)
+theorem get_z_mem {f : α ≃o α} {x y : α} (not_fix : f x ≠ x) {z : ℤ}
     (y_mem : y ∈ z_interval f x z) :
     get_z not_fix (mem_z_interval_mem_orbital y_mem) = z := by
   set m := get_z not_fix (mem_z_interval_mem_orbital y_mem)
@@ -172,7 +172,7 @@ theorem pow_get_z_pow {f : α ≃o α} {x y : α} {z : ℤ} (not_fix : f x ≠ x
       rw [non_decr_eq_elem_orbital] at y_mem ⊢
       exact pow_mem_elem_orbital z y_mem) = get_z not_fix y_mem + z := by
   have := shift_z_interval (mem_get_z not_fix y_mem) z
-  exact get_z_mem not_fix ((get_z not_fix y_mem) + z) this
+  exact get_z_mem not_fix this
 
 /--
   If `y` is in the zeroth copy,
@@ -184,7 +184,7 @@ theorem mem_zeroth_copy_shift_get_z {f : α ≃o α} {x y : α} (z : ℤ)
       (mem_z_interval_non_decr_pow_mem_orbital mem) = z := by
   have y_mem_orbital := mem_z_interval_mem_orbital mem
   have : z = get_z not_fix y_mem_orbital + z := by
-    simp [get_z_mem not_fix 0 mem]
+    simp [get_z_mem not_fix mem]
   rw [this]
   convert pow_get_z_pow not_fix y_mem_orbital (z := z)
   exact this.symm
@@ -233,5 +233,14 @@ noncomputable def zsum_z_interval_iso {f : α ≃o α} {x : α} (not_fix : f x �
             (get_z_spec not_fix a_mem) (get_z_spec not_fix b_mem)).le
       · simpa [zeroth_copy, az_eq_bz] using azero_lt_bzero
     · intro a_le_b
-      simp [Prod.Lex.toLex_le_toLex]
-      sorry
+      simp [Prod.Lex.toLex_le_toLex, zeroth_copy]
+      have a_mem_z := mem_get_z not_fix a_mem
+      have b_mem_z := mem_get_z not_fix b_mem
+      by_contra!
+      obtain ⟨pow_le, imp⟩ := this
+      obtain pow_lt | pow_eq := pow_le.lt_or_eq
+      · have := lt_z_interval pow_lt b_mem_z a_mem_z
+        order
+      · specialize imp pow_eq.symm
+        simp [pow_eq] at imp
+        order

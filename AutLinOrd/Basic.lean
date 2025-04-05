@@ -137,7 +137,7 @@ theorem intersect_leftBounded_bubbleR {f g : α ≃o α} {x y z : α}
   · exact left_combine_bounded f_leftBounded g_leftBounded
       y_mem_f y_mem_g
   · have eq_union := (intersect_orbital_combine_at y_mem_f y_mem_g).2
-    simp [eq_union]
+    simp only [eq_union, Set.mem_union]
     tauto
 
 /--
@@ -158,7 +158,7 @@ theorem intersect_rightBounded_bubbleR {f g : α ≃o α} {x y z : α}
   · exact right_combine_bounded f_rightBounded g_rightBounded
       y_mem_f y_mem_g
   · have eq_union := (intersect_orbital_combine_at y_mem_f y_mem_g).2
-    simp [eq_union]
+    simp only [eq_union, Set.mem_union]
     tauto
 
 /--

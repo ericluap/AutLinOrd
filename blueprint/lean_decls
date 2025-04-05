@@ -3,3 +3,6 @@ elem_orbital
 isBump
 isBoundedBump
 bubbleR
+reflexive_bubbleR
+symmetric_bubbleR
+left_convex_bubbleR

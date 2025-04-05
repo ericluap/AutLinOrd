@@ -233,7 +233,8 @@ noncomputable def zsum_z_interval_iso {f : α ≃o α} {x : α} (not_fix : f x �
             (get_z_spec not_fix a_mem) (get_z_spec not_fix b_mem)).le
       · simpa [zeroth_copy, az_eq_bz] using azero_lt_bzero
     · intro a_le_b
-      simp [Prod.Lex.toLex_le_toLex, zeroth_copy]
+      simp only [zeroth_copy, zpow_neg,
+        Prod.Lex.toLex_le_toLex, Subtype.mk_le_mk]
       have a_mem_z := mem_get_z not_fix a_mem
       have b_mem_z := mem_get_z not_fix b_mem
       by_contra!

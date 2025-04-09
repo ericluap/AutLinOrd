@@ -102,6 +102,20 @@ theorem left_convex_bubbleR {x y z : α} (x_lt_y : x < y) (y_lt_z : y < z)
   · order
 
 /--
+  Let `x ≤ y` and `y ≤ z`.
+  If `x` is bubble related to `z`,
+  then `x` is bubble related to `y`.
+-/
+theorem left_convex_bubbleR_le {x y z : α} (x_le_y : x ≤ y) (y_le_z : y ≤ z)
+    (x_R_z : bubbleR x z) : bubbleR x y := by
+  obtain y_lt_z | y_eq_z := y_le_z.lt_or_eq
+  <;> obtain x_lt_y | x_eq_y := x_le_y.lt_or_eq
+  · exact left_convex_bubbleR x_lt_y y_lt_z x_R_z
+  · exact Or.inr x_eq_y
+  · simp [y_eq_z, x_R_z]
+  · exact Or.inr x_eq_y
+
+/--
   Let `x < y` and `y < z`.
   If `x` is bubble related to `z`,
   then `y` is bubble related to `z`.
@@ -118,6 +132,20 @@ theorem right_convex_bubbleR {x y z : α} (x_lt_y : x < y) (y_lt_z : y < z)
     have := isOrdConnected_orbital f
     exact Set.OrdConnected.out' x_mem_f_orbital z_mem_f_orbital y_mem
   · order
+
+/--
+  Let `x ≤ y` and `y ≤ z`.
+  If `x` is bubble related to `z`,
+  then `y` is bubble related to `z`.
+-/
+theorem right_convex_bubbleR_le {x y z : α} (x_le_y : x ≤ y) (y_le_z : y ≤ z)
+    (x_R_z : bubbleR x z) : bubbleR y z := by
+  obtain y_lt_z | y_eq_z := y_le_z.lt_or_eq
+  <;> obtain x_lt_y | x_eq_y := x_le_y.lt_or_eq
+  · exact right_convex_bubbleR x_lt_y y_lt_z x_R_z
+  · simp [←x_eq_y, x_R_z]
+  · exact Or.inr y_eq_z
+  · exact Or.inr y_eq_z
 
 /--
   Let `x` and `y` be in the orbital of `f`,
@@ -179,7 +207,16 @@ theorem ordered_intersect_bounbded_bumps_bubbleR_transitive {f g : α ≃o α} {
   <;> obtain ⟨g_bump, g_leftbounded | g_rightbounded⟩ := g_boundedBump
   · exact intersect_leftBounded_bubbleR x_mem_f y_mem_f y_mem_g z_mem_g
       f_leftbounded g_leftbounded
-  · sorry
+  · by_cases g_leftbounded : leftBoundedOrbital g
+    · exact intersect_leftBounded_bubbleR x_mem_f y_mem_f y_mem_g z_mem_g
+        f_leftbounded g_leftbounded
+    · simp [leftBoundedOrbital] at g_leftbounded
+      obtain ⟨t, ht, t_le_z⟩ := g_leftbounded x
+      have : bubbleR t z := by
+        left
+        use g
+        simp [isBoundedBump, g_bump, g_rightbounded, ht, z_mem_g]
+      exact right_convex_bubbleR_le t_le_z (show x ≤ z by order) this
   · sorry
   · exact intersect_rightBounded_bubbleR x_mem_f y_mem_f y_mem_g z_mem_g
       f_rightbounded g_rightbounded

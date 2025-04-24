@@ -33,6 +33,8 @@ theorem initial_emb_convex_emb [LinearOrder α] [LinearOrder β]
 
 notation3:25 α:24 " ≤j " β:25 => @InitialSeg α β (· < ·) (· < ·)
 
+--theorem lowerbound_exists_least_copy
+
 theorem initial_seg_embeds_in_single {y l u} {I J : Type*} [LinearOrder I]
     [LinearOrder J] {A B : Set α} (y_mem_a : y ∈ A) (y_mem_b : y ∈ B)
     (l_mem_a : l ∈ A) (l_lowerbound : ∀b ∈ B, l < b)

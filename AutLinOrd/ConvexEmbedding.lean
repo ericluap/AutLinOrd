@@ -3,7 +3,6 @@ import Mathlib.Order.Interval.Set.OrdConnected
 
 /--
   A `ConvexEmbedding` is an `OrderEmbedding` whose image is `OrdConnected`.
-  In other words, it is a convex order embedding.
 -/
 structure ConvexEmbedding (α β : Type*) [Preorder α] [Preorder β] extends α ↪o β
     where

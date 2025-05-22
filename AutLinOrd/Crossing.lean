@@ -5,27 +5,108 @@ variable [LinearOrder α]
 
 open InitialSeg
 
-variable (n : ℕ)
-#check ({n} : Set ℕ)
+@[simp]
+theorem toLex_fst (a : A) (b : B) : (toLex (a,b)).1 = a := rfl
 
-theorem lowerbound_subset_omega [LinearOrder A] (S : Set (ℕ ×ₗ A))
-    (l : ℕ ×ₗ A) (l_lowerbound : ∀s ∈ S, l < s) :
-    ∃(T : Type*) (_ : LinearOrder T),
+@[simp]
+theorem toLex_snd (a : A) (b : B) : (toLex (a,b)).2 = b := rfl
+
+/--
+  If `S` is an `OrdConnected` and `Nonempty` subset of `ℕ ×ₗ A`, then
+  there exists an initial segment of `S` that convexly embeds in `A`.
+-/
+theorem lowerbound_subset_omega {A : Type u} [LinearOrder A] (S : Set (ℕ ×ₗ A))
+    (s_nonempty : Nonempty S) (s_ordConnected : S.OrdConnected) :
+    ∃(T : Type u) (_ : LinearOrder T),
     Nonempty (T ≤i S) ∧ Nonempty (T ≤c A) := by
-  set possibleN := {n | ∃(a : A), ∀s ∈ S, toLex (n, a) ≤ s}
-    with possibleN_def
-  have : Nonempty possibleN := by
-    simp only [nonempty_subtype]
-    use 0, l.2
-    intro s hs
-    have : toLex (0, l.2) ≤ l := by
-      have : l = toLex (l.1, l.2) := rfl
-      conv_rhs => rw [this]
-      simp only [Prod.mk.eta, Prod.Lex.le_iff, ofLex_toLex, le_refl, and_true]
-      omega
-    have := l_lowerbound s hs
-    order
-  sorry
+  -- Find the minimal `n : ℕ` such that `n × A` intersects `S`
+  let intersectsS (n : ℕ) := ∃s ∈ S, ∃a : A, toLex (n, a) = s
+  have existsValidN : ∃n, intersectsS n := by
+    simp only [nonempty_subtype, Lex.exists, Prod.exists] at s_nonempty
+    obtain ⟨n, ⟨a, a_n_mem⟩⟩ := s_nonempty
+    use n
+    use toLex (n, a)
+    simp [a_n_mem]
+  open Classical in
+  have n_intersectsS := Nat.find_spec existsValidN
+  have n_min_intersectsS (m : ℕ) := Nat.find_min' (m := m) existsValidN
+  set n := Nat.find existsValidN
+
+  -- Let `T` be the intersection of `S` and `n × A`
+  set T := {x : ℕ ×ₗ A | x ∈ S ∧ x.1 = n}
+    with T_def
+  use T, inferInstance
+  constructor
+
+  -- `T` is an `InitialSeg` of `ℕ ×ₗ A`
+  · refine exists_true_iff_nonempty.mp ?_
+    use {
+      toFun x := ⟨x.val, x.prop.1⟩
+      inj' := by simp [Function.Injective]
+      map_rel_iff' := by simp
+      mem_range_of_rel' := by
+        simp only [RelEmbedding.coe_mk, Function.Embedding.coeFn_mk,
+          Set.mem_range, Subtype.exists, Lex.exists, Prod.exists,
+          Subtype.forall, Subtype.mk_lt_mk, Subtype.mk.injEq, exists_prop,
+          Lex.forall, EmbeddingLike.apply_eq_iff_eq, Prod.forall,
+          Prod.mk.injEq, exists_eq_right_right, exists_eq_right]
+        intro m b m_b_mem_T l c l_c_mem_S l_c_lt_m_b
+        simp only [exists_and_left, Set.mem_setOf_eq,
+          EmbeddingLike.apply_eq_iff_eq, Prod.mk.injEq, exists_eq',
+          and_true, T]
+        constructor
+        · exact l_c_mem_S
+        · have l_intersectsS : intersectsS l := by
+            simp only [Lex.exists, EmbeddingLike.apply_eq_iff_eq,
+              Prod.exists, Prod.mk.injEq, exists_eq_right, exists_and_right,
+              exists_eq_right', intersectsS, T]
+            use c
+          have := n_min_intersectsS l l_intersectsS
+          have m_eq_n : m = n := by
+            have := m_b_mem_T.2
+            simp only [EmbeddingLike.apply_eq_iff_eq, Prod.mk.injEq,
+              intersectsS, T] at this
+            exact this
+          simp [Prod.Lex.lt_iff] at l_c_lt_m_b
+          simp only [toLex_fst, intersectsS, T]
+          obtain l_lt_m | ⟨l_eq_m, _⟩ := l_c_lt_m_b
+          · order
+          · order
+    }
+  -- `T` convexly embeds in `A`
+  · refine exists_true_iff_nonempty.mp ?_
+    use {
+      toFun x := x.val.2
+      inj' := by
+        simp only [Function.Injective, Set.coe_setOf, Set.mem_setOf_eq,
+          Subtype.forall, Lex.forall, Prod.forall, toLex_fst, toLex_snd,
+          Subtype.mk.injEq, and_imp, EmbeddingLike.apply_eq_iff_eq,
+          Prod.mk.injEq, T, intersectsS, n]
+        grind
+      map_rel_iff' := by
+        simp only [Set.coe_setOf, Set.mem_setOf_eq, Function.Embedding.coeFn_mk,
+          Subtype.forall, Lex.forall, Prod.forall, toLex_fst, toLex_snd,
+          Subtype.mk_le_mk, Prod.Lex.le_iff, ofLex_toLex, and_imp, T, n]
+        grind
+      imageOrdConnected := by
+        simp only [Set.coe_setOf, Set.mem_setOf_eq, Set.ordConnected_iff,
+          Set.mem_range, Subtype.exists, exists_prop, Lex.exists, Prod.exists,
+          toLex_fst, toLex_snd, exists_eq_right, T]
+        simp only [Set.ordConnected_iff, Lex.forall, Prod.forall,
+          T] at s_ordConnected
+        intro a n_a_mem_S b n_b_mem_S a_le_b
+        intro c c_mem_set
+        simp at c_mem_set
+        have na_le_nc : toLex (n, a) ≤ toLex (n, c) := by
+          simp [Prod.Lex.le_iff, c_mem_set.1]
+        have nc_le_nb : toLex (n, c) ≤ toLex (n, b) := by
+          simp [Prod.Lex.le_iff, c_mem_set.2]
+        specialize s_ordConnected n a n_a_mem_S n b n_b_mem_S (by order)
+        have : toLex (n, c) ∈ Set.Icc (toLex (n,a)) (toLex (n,b)) := by
+          simp [T, na_le_nc, nc_le_nb]
+        have nc_mem_S := s_ordConnected this
+        simp [Set.range, nc_mem_S]
+    }
 
 theorem initial_seg_embeds_in_single {y l u} {I J : Type*} [LinearOrder I]
     [LinearOrder J] {A B : Set α} (A_interval : A.OrdConnected)

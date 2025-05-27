@@ -3,8 +3,6 @@ import AutLinOrd.ConvexEmbedding
 
 variable [LinearOrder α]
 
-open InitialSeg
-
 @[simp]
 theorem toLex_fst (a : A) (b : B) : (toLex (a,b)).1 = a := rfl
 
@@ -24,8 +22,7 @@ theorem lowerbound_subset_omega {A : Type u} [LinearOrder A] (S : Set (ℕ ×ₗ
   have existsValidN : ∃n, intersectsS n := by
     simp only [nonempty_subtype, Lex.exists, Prod.exists] at s_nonempty
     obtain ⟨n, ⟨a, a_n_mem⟩⟩ := s_nonempty
-    use n
-    use toLex (n, a)
+    use n, toLex (n, a)
     simp [a_n_mem]
   open Classical in
   have n_intersectsS := Nat.find_spec existsValidN
@@ -35,7 +32,6 @@ theorem lowerbound_subset_omega {A : Type u} [LinearOrder A] (S : Set (ℕ ×ₗ
   -- Let `T` be the intersection of `S` and `n × A`
   set nA := {x : ℕ ×ₗ A | x.1 = n}
   set T := S ∩ nA
-    with T_def
   use T, inferInstance
   constructor
 
@@ -98,7 +94,7 @@ theorem lowerbound_subset_omega {A : Type u} [LinearOrder A] (S : Set (ℕ ×ₗ
           T] at s_ordConnected
         intro a n_a_mem_S b n_b_mem_S a_le_b
         intro c c_mem_set
-        simp at c_mem_set
+        simp only [Set.mem_Icc, nA, T] at c_mem_set
         have na_le_nc : toLex (n, a) ≤ toLex (n, c) := by
           simp [Prod.Lex.le_iff, c_mem_set.1]
         have nc_le_nb : toLex (n, c) ≤ toLex (n, b) := by
@@ -110,6 +106,93 @@ theorem lowerbound_subset_omega {A : Type u} [LinearOrder A] (S : Set (ℕ ×ₗ
         simp [Set.range, nc_mem_S]
     }
 
+variable {A B : Set α}
+
+/--
+  `ExtendsLeft A B` means that `A` has an element in it
+  less than or equal to all of `B`.
+-/
+def ExtendsLeft (A B : Set α) := ∃l, l ∈ A ∧ ∀b ∈ B, l ≤ b
+/--
+  `ExtendsRight A B` means that `A` has an element in it
+  greater than or equal to all of `B`.
+-/
+def ExtendsRight (A B : Set α) := ∃u, u ∈ A ∧ ∀b ∈ B, b ≤ u
+
+/--
+  `ExtendsLeftRight A B` means that `A` and `B` intersect,
+  `A` has an element less than or equal to all of `B`,
+  and `B` has an element greater than or equal to all of `A`.
+-/
+def ExtendsLeftRight (A B : Set α) :=
+  (∃x, x ∈ A ∧ x ∈ B) ∧ ExtendsLeft A B ∧ ExtendsRight B A
+
+/--
+  If `a` is in both `A` and `B`, `z` is in `B`, and `z ≤ a`,
+  then `z ∈ A`.
+-/
+theorem mem_le_inter_mem (A_interval : A.OrdConnected)
+    (extendsLeftRight : ExtendsLeftRight A B)
+    (a_mem_A : a ∈ A) (a_mem_B : a ∈ B) (z_mem_B : z ∈ B) (z_le_a : z ≤ a) :
+    z ∈ A := by
+  simp only [Set.ordConnected_iff] at A_interval
+  obtain ⟨l, l_mem_A, hl⟩ := extendsLeftRight.2.1
+  apply A_interval l l_mem_A a a_mem_A (hl a a_mem_B)
+  exact ⟨hl z z_mem_B, z_le_a⟩
+
+/--
+  If `a` is in both `A` and `B`, `z` is in `A`, and `a ≤ z`,
+  then `z ∈ B`.
+-/
+theorem mem_ge_inter_mem (B_interval : B.OrdConnected)
+    (extendsLeftRight : ExtendsLeftRight A B)
+    (a_mem_A : a ∈ A) (a_mem_B : a ∈ B) (z_mem_A : z ∈ A) (a_le_z : a ≤ z) :
+    z ∈ B := by
+  simp only [Set.ordConnected_iff] at B_interval
+  obtain ⟨u, u_mem_B, hl⟩ := extendsLeftRight.2.2
+  apply B_interval a a_mem_B u u_mem_B (hl a a_mem_A)
+  exact ⟨a_le_z, hl z z_mem_A⟩
+
+/--
+  If `ExtendsLeftRight A B`, then `A ∩ B` is an initial segment of `B`.
+-/
+def intersect_extendsLeftRight_initial
+    (A_interval : A.OrdConnected)
+    (extendsLeftRight : ExtendsLeftRight A B) : (A ∩ B : Set α) ≤i B where
+  toFun x := ⟨x.val, x.prop.2⟩
+  inj' := by simp [Function.Injective]
+  map_rel_iff' := by simp
+  mem_range_of_rel' := by
+    simp only [RelEmbedding.coe_mk, Function.Embedding.coeFn_mk,
+      Set.inter_subset_right, Set.range_inclusion, Set.mem_inter_iff,
+      Subtype.coe_prop, and_true, Set.mem_setOf_eq, Subtype.forall,
+      Subtype.mk_lt_mk, and_imp]
+    intro a a_mem_A a_mem_B z z_mem_A z_lt_a
+    exact mem_le_inter_mem A_interval extendsLeftRight a_mem_A
+      a_mem_B z_mem_A z_lt_a.le
+
+/--
+  If `ExtendsLeftRight A B`, then `A ∩ B` is a final segment of `A`.
+-/
+def intersect_extendsLeftRight_final
+    (B_interval : B.OrdConnected)
+    (extendsLeftRight : ExtendsLeftRight A B) : (A ∩ B : Set α)ᵒᵈ ≤i Aᵒᵈ where
+  toFun x := OrderDual.toDual
+    ⟨(OrderDual.ofDual x).val, (OrderDual.ofDual x).prop.1⟩
+  inj' := by simp [Function.Injective]
+  map_rel_iff' := by simp
+  mem_range_of_rel' := by
+    simp only [RelEmbedding.coe_mk, Function.Embedding.coeFn_mk, Set.mem_range,
+      OrderDual.exists, OrderDual.ofDual_toDual, Subtype.exists,
+      Set.mem_inter_iff, OrderDual.forall, OrderDual.toDual_lt_toDual,
+      EmbeddingLike.apply_eq_iff_eq, Subtype.forall, Subtype.mk_lt_mk,
+      Subtype.mk.injEq, exists_prop, exists_eq_right, and_imp]
+    intro a a_mem_A a_mem_B z z_mem_A a_lt_z
+    constructor
+    · exact z_mem_A
+    · exact mem_ge_inter_mem B_interval extendsLeftRight a_mem_A
+        a_mem_B z_mem_A a_lt_z.le
+
 theorem initial_seg_embeds_in_single {y l u} {I J : Type u} [LinearOrder I]
     [LinearOrder J] {A B : Set α} (A_interval : A.OrdConnected)
     (B_interval : B.OrdConnected) (y_mem_a : y ∈ A) (y_mem_b : y ∈ B)
@@ -117,49 +200,12 @@ theorem initial_seg_embeds_in_single {y l u} {I J : Type u} [LinearOrder I]
     (u_mem_b : u ∈ B) (u_upperbound : ∀a ∈ A, a < u)
     (A_iso : A ≃o ℕ ×ₗ I) (B_iso : B ≃o ℕᵒᵈ ×ₗ J) :
     ∃(T : Type u) (_ : LinearOrder T),
-    Nonempty (T ≤i ℕᵒᵈ ×ₗ J) ∧ Nonempty (T ≤c I) := by
-  set S := A ∩ B
-  have S_ordConnected : S.OrdConnected := by
-    simp [Set.ordConnected_iff]
-    intro x x_mem_S y y_mem_S x_le_y z z_mem
-    simp at z_mem
-    have z_mem_A : z ∈ A := by
-      simp only [Set.ordConnected_iff] at A_interval
-      exact A_interval x (x_mem_S.1) y (y_mem_S.1) (by order) z_mem
-    have z_mem_B : z ∈ B := by
-      simp only [Set.ordConnected_iff] at B_interval
-      exact B_interval x (x_mem_S.2) y (y_mem_S.2) (by order) z_mem
-    exact Set.mem_inter z_mem_A z_mem_B
-  have S_nonempty : Nonempty S := by
-    simp only [nonempty_subtype]
-    use y
-    exact Set.mem_inter y_mem_a y_mem_b
-  /-set S_iso_Sa : S ↪o A := {
-    toFun x := ⟨x.val, x.prop.1⟩
-    inj' := by simp [Function.Injective]
-    map_rel_iff' := by simp
-  }-/
-  /-set Sa := {x : A | x.val ∈ S}
-  set S_iso_Sa : S ≃o Sa := {
-    toFun x := ⟨⟨x.val, x.prop.1⟩, by simp [Sa]⟩
-    invFun x := ⟨x.val, by simp [S, x.prop.2]⟩
-    left_inv := by simp [Function.LeftInverse]
-    right_inv := by simp [Function.RightInverse, Function.LeftInverse]
-    map_rel_iff' := by simp
-  }-/
-  set Sa := {x : A | x.val ∈ S}
-  set S' := A_iso '' Sa
-  have Sa_OrdConnected : Sa.OrdConnected := by sorry
-  have S'_nonempty : Nonempty S' := by sorry
-  have S'_ordConnected : S'.OrdConnected := by
-    exact Set.ordConnected_image A_iso
-  have := lowerbound_subset_omega S' S'_nonempty S'_ordConnected
-  sorry
+    Nonempty (T ≤i ℕᵒᵈ ×ₗ J) ∧ Nonempty (T ≤c I) := by sorry
 
 theorem initial_in_omega_star_swap [LinearOrder T] [LinearOrder J]
   (h : T ≤i ℕᵒᵈ ×ₗ J) : Nonempty (ℕᵒᵈ ×ₗ J ≤i T) := by sorry
 
-theorem crossing_embed {y l u} {I J : Type*} [LinearOrder I] [LinearOrder J]
+theorem crossing_embed {y l u} {I J : Type u} [LinearOrder I] [LinearOrder J]
     {A B : Set α} (A_interval : A.OrdConnected) (B_interval : B.OrdConnected)
     (y_mem_a : y ∈ A) (y_mem_b : y ∈ B) (l_mem_a : l ∈ A)
     (l_lowerbound : ∀b ∈ B, l < b) (u_mem_b : u ∈ B)
@@ -174,7 +220,7 @@ theorem crossing_embed {y l u} {I J : Type*} [LinearOrder I] [LinearOrder J]
     simp only [←exists_true_iff_nonempty] at init convex
     obtain ⟨init⟩ := init
     obtain ⟨convex⟩ := convex
-    have := initial_in_omega_star_swap.{u_2} init
+    have := initial_in_omega_star_swap init
     obtain ⟨initial⟩ := Classical.exists_true_of_nonempty this
     have := initial_emb_convex_emb initial
     exact Nonempty.intro (convex.comp this)

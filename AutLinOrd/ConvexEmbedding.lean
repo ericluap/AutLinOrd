@@ -1,3 +1,4 @@
+import Mathlib
 import Mathlib.Order.InitialSeg
 import Mathlib.Order.Interval.Set.OrdConnected
 
@@ -15,6 +16,9 @@ namespace ConvexEmbedding
 
 variable [Preorder α] [Preorder β] [Preorder γ] (f : α ≤c β)
 
+/--
+  Every `ConvexEmbedding` is an `OrderEmbedding`.
+-/
 @[coe]
 def toOrdEmbedding (f : ConvexEmbedding α β) : α ↪o β where
   toFun := f.toFun
@@ -99,9 +103,13 @@ theorem image_initialSeg_ordConnected [PartialOrder α] [PartialOrder β]
 /--
   Every `InitialSeg` is a `ConvexEmbedding`.
 -/
-def initial_emb_convex_emb [PartialOrder α] [PartialOrder β]
+@[coe]
+def InitialSeg.toConvexEmbedding [PartialOrder α] [PartialOrder β]
     (initial : α ≤i β) : α ≤c β where
   toFun := initial
   inj' := by simp [Function.Injective]
   map_rel_iff' := by simp
   imageOrdConnected := image_initialSeg_ordConnected initial
+
+instance [PartialOrder α] [PartialOrder β] : Coe (α ≤i β) (α ≤c β) where
+  coe f := f.toConvexEmbedding

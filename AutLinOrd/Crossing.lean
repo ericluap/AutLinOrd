@@ -163,8 +163,82 @@ theorem initial_seg_embeds_in_single {I J : Type u} [LinearOrder I]
     exact Nonempty.intro (T_init_S.trans S_init_NJ)
   · exact Nonempty.intro T_convex_I
 
-theorem initial_in_omega_star_swap [LinearOrder T] [LinearOrder J]
-  (h : T ≤i ℕᵒᵈ ×ₗ J) : Nonempty (ℕᵒᵈ ×ₗ J ≤i T) := by sorry
+/--
+  The initial segment of `ℕᵒᵈ ×ₗ J` starting at `n`
+  instead of `0` in the first coordinate.
+-/
+def beforeN (J : Type*) [LinearOrder J] (n : ℕ) :=
+  {x : ℕᵒᵈ ×ₗ J | (ofLex x).1 ≤ OrderDual.toDual n}
+
+/--
+  `beforeN J n` is an initial segment of `ℕᵒᵈ ×ₗ J`.
+-/
+def beforeN_initial (J : Type*) [LinearOrder J] (n : ℕ) :
+    beforeN J n ≤i ℕᵒᵈ ×ₗ J where
+  toFun x := x.val
+  inj' := by simp
+  map_rel_iff' := by simp
+  mem_range_of_rel' := by
+    simp only [RelEmbedding.coe_mk, Function.Embedding.coeFn_mk,
+      Subtype.range_coe_subtype, Set.setOf_mem_eq, Lex.forall, Prod.forall,
+      OrderDual.forall, Subtype.forall]
+    intro a b h_mem c d lt
+    simp only [Prod.Lex.lt_iff, ofLex_toLex, OrderDual.toDual_lt_toDual,
+      EmbeddingLike.apply_eq_iff_eq] at lt
+    simp only [beforeN, Set.mem_setOf_eq, ofLex_toLex,
+      OrderDual.toDual_le_toDual] at h_mem ⊢
+    obtain a_lt_c | c_eq_a | d_lt_b := lt
+    <;> order
+
+/--
+  `before J n` is order isomorphic to `ℕᵒᵈ ×ₗ J`.
+-/
+def beforeN_iso (J : Type*) [LinearOrder J] (n : ℕ) :
+    beforeN J n ≃o ℕᵒᵈ ×ₗ J where
+  toFun x := toLex (
+      OrderDual.toDual ((OrderDual.ofDual (ofLex x.val).1) - n),
+      (ofLex x.val).2)
+  invFun x := ⟨toLex (
+      OrderDual.toDual ((OrderDual.ofDual (ofLex x).1) + n),
+      (ofLex x).2), by simp [beforeN, ←OrderDual.ofDual_le_ofDual]⟩
+  left_inv := by
+    simp only [Function.LeftInverse, beforeN, Set.coe_setOf, Set.mem_setOf_eq,
+      toDual_sub, OrderDual.toDual_ofDual, ofLex_toLex, ofDual_sub,
+      OrderDual.ofDual_toDual, toDual_add, Subtype.forall, Subtype.mk.injEq,
+      Lex.forall, EmbeddingLike.apply_eq_iff_eq, Prod.forall,
+      Prod.mk.injEq, and_true, OrderDual.forall, OrderDual.toDual_le_toDual]
+    intro a b n_le_a
+    change a - n + n = a
+    omega
+  right_inv := by simp [Function.RightInverse, Function.LeftInverse]
+  map_rel_iff' := by
+    simp only [beforeN, Set.coe_setOf, Set.mem_setOf_eq, toDual_sub,
+      OrderDual.toDual_ofDual, toDual_add, Equiv.coe_fn_mk, Prod.Lex.le_iff,
+      ofLex_toLex, Subtype.forall, Lex.forall, Prod.forall, OrderDual.forall,
+      OrderDual.toDual_le_toDual, Subtype.mk_le_mk, OrderDual.toDual_lt_toDual,
+      EmbeddingLike.apply_eq_iff_eq]
+    intro a b n_le_a c d n_le_c
+    constructor
+    · intro h
+      obtain an_lt_cn | ⟨an_eq_cn, b_le_d⟩ := h
+      · left
+        change a - n > c - n at an_lt_cn
+        omega
+      · change a - n = c - n at an_eq_cn
+        right
+        grind
+    · intro h
+      obtain c_lt_a | ⟨a_eq_c, b_le_d⟩ := h
+      · left
+        change a - n > c - n
+        grind
+      · right
+        change a - n = c - n ∧ _
+        grind
+
+def initial_in_omega_star_swap [LinearOrder T] [LinearOrder J]
+    (h : T ≤i ℕᵒᵈ ×ₗ J) : ℕᵒᵈ ×ₗ J ≤i T := sorry
+
 
 theorem crossing_embed {I J : Type u} [LinearOrder I] [LinearOrder J]
     {A B : Set α} (A_interval : A.OrdConnected) (B_interval : B.OrdConnected)

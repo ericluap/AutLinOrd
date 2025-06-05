@@ -1,8 +1,13 @@
 import AutLinOrd.Basic
 import AutLinOrd.CombineAt
+import AutLinOrd.ConvexEmbedding
+import AutLinOrd.Crossing
 import AutLinOrd.ElemOrbital
+import AutLinOrd.Embeddings
+import AutLinOrd.ExtendsLeftRight
 import AutLinOrd.IncrDecr
 import AutLinOrd.NonDecrAt
+import AutLinOrd.OmegaSum
 import AutLinOrd.Orbital
 import AutLinOrd.OrbitalAt
 import AutLinOrd.OrbitalAtNonDecr

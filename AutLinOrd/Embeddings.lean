@@ -50,6 +50,9 @@ def iso_initial [LinearOrder γ] (initial : α ≤i β) (iso : β ≃o γ) :
     use c
     simp [hc]
 
+def domain_iso_initial [LinearOrder γ] (initial : α ≤i β) (iso : α ≃o γ) :
+    γ ≤i β := iso.symm.toInitialSeg.trans initial
+
 /--
   If `α` is initial in `β` and `β ≃o γ`, then the image of `α`
   under `γ` is initial in `γ`.

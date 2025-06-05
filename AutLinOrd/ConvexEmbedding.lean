@@ -1,6 +1,6 @@
-import Mathlib
 import Mathlib.Order.InitialSeg
 import Mathlib.Order.Interval.Set.OrdConnected
+import Mathlib
 
 /--
   A `ConvexEmbedding` is an `OrderEmbedding` whose image is `OrdConnected`.

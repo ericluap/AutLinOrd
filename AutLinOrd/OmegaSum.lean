@@ -124,6 +124,39 @@ theorem lowerbound_subset_omega {A : Type u} [LinearOrder A] (S : Set (ℕ ×ₗ
 -/
 def afterN (I : Type*) [LinearOrder I] (n : ℕ) :=
   {x : ℕ ×ₗ I | n ≤ (ofLex x).1}
+
+/--
+  `afterN I n` is a final segment `ℕᵒᵈ ×ₗ I`.
+-/
+def afterN_final (I : Type*) [LinearOrder I] (n : ℕ) :
+    (afterN I n)ᵒᵈ ≤i (ℕ ×ₗ I)ᵒᵈ where
+  toFun x := OrderDual.toDual (OrderDual.ofDual x).val
+  inj' := by simp [Function.Injective]
+  map_rel_iff' := by simp
+  mem_range_of_rel' := by
+    simp only [afterN, Set.coe_setOf, Set.mem_setOf_eq, RelEmbedding.coe_mk,
+      Function.Embedding.coeFn_mk, Set.mem_range, OrderDual.exists, OrderDual.ofDual_toDual,
+      Subtype.exists, exists_prop, Lex.exists, ofLex_toLex, Prod.exists,
+      exists_and_left, OrderDual.forall, OrderDual.toDual_lt_toDual,
+      Prod.Lex.lt_iff, EmbeddingLike.apply_eq_iff_eq, Lex.forall, Prod.forall,
+      Prod.mk.injEq, exists_eq_right, Subtype.forall, exists_eq, and_true,
+      exists_eq_right]
+    omega
+
+/--
+  `afterN I n` is order isomorphic to `ℕ ×ₗ I`.
+-/
+def afterN_iso (I : Type*) [LinearOrder I] (n : ℕ) :
+    afterN I n ≃o ℕ ×ₗ I where
+  toFun x := toLex ((ofLex x.val).1 - n, (ofLex x.val).2)
+  invFun x := ⟨toLex ((ofLex x).1 + n, (ofLex x).2), by simp [afterN]⟩
+  left_inv := by simp (disch := omega) [Function.LeftInverse, afterN]
+  right_inv := by simp [Function.RightInverse, Function.LeftInverse]
+  map_rel_iff' := by
+    simp only [afterN, Set.coe_setOf, Set.mem_setOf_eq, Equiv.coe_fn_mk, Prod.Lex.le_iff,
+      ofLex_toLex, Subtype.forall, Lex.forall, Prod.forall, Subtype.mk_le_mk]
+    grind
+
 /--
   The initial segment of `ℕᵒᵈ ×ₗ J` starting at `n`
   instead of `0` in the first coordinate.
@@ -140,16 +173,12 @@ def beforeN_initial (J : Type*) [LinearOrder J] (n : ℕ) :
   inj' := by simp
   map_rel_iff' := by simp
   mem_range_of_rel' := by
-    simp only [RelEmbedding.coe_mk, Function.Embedding.coeFn_mk,
-      Subtype.range_coe_subtype, Set.setOf_mem_eq, Lex.forall, Prod.forall,
-      OrderDual.forall, Subtype.forall]
-    intro a b h_mem c d lt
-    simp only [Prod.Lex.lt_iff, ofLex_toLex, OrderDual.toDual_lt_toDual,
-      EmbeddingLike.apply_eq_iff_eq] at lt
-    simp only [beforeN, Set.mem_setOf_eq, ofLex_toLex,
-      OrderDual.toDual_le_toDual] at h_mem ⊢
-    obtain a_lt_c | c_eq_a | d_lt_b := lt
-    <;> order
+    simp only [beforeN, Set.coe_setOf, Set.mem_setOf_eq, RelEmbedding.coe_mk,
+      Function.Embedding.coeFn_mk, Prod.Lex.lt_iff, Subtype.range_coe_subtype,
+      Lex.forall, ofLex_toLex, Prod.forall, OrderDual.forall,
+      OrderDual.toDual_le_toDual, Subtype.forall, OrderDual.toDual_lt_toDual,
+      EmbeddingLike.apply_eq_iff_eq]
+    omega
 
 /--
   `before J n` is order isomorphic to `ℕᵒᵈ ×ₗ J`.
@@ -160,32 +189,16 @@ def beforeN_iso (J : Type*) [LinearOrder J] (n : ℕ) :
   invFun x := ⟨toLex ((ofLex x).1 + OrderDual.toDual n, (ofLex x).2),
     by simp [beforeN, ←OrderDual.ofDual_le_ofDual]⟩
   left_inv := by
-    simp only [Function.LeftInverse, beforeN, Set.coe_setOf, Set.mem_setOf_eq,
-      toDual_sub, OrderDual.toDual_ofDual, ofLex_toLex, ofDual_sub,
-      OrderDual.ofDual_toDual, toDual_add, Subtype.forall, Subtype.mk.injEq,
-      Lex.forall, EmbeddingLike.apply_eq_iff_eq, Prod.forall,
-      Prod.mk.injEq, and_true, OrderDual.forall, OrderDual.toDual_le_toDual]
-    intro a b n_le_a
-    simp [←toDual_sub, ←toDual_add]
+    simp only [Function.LeftInverse, beforeN, Set.coe_setOf, Set.mem_setOf_eq, ofLex_toLex,
+      Subtype.forall, Subtype.mk.injEq, Lex.forall, EmbeddingLike.apply_eq_iff_eq, Prod.forall,
+      Prod.mk.injEq, and_true, OrderDual.forall, OrderDual.toDual_le_toDual, ← toDual_sub, ←
+      toDual_add]
     omega
   right_inv := by simp [Function.RightInverse, Function.LeftInverse,
     ←toDual_sub, ←toDual_add]
   map_rel_iff' := by
-    simp only [beforeN, Set.coe_setOf, Set.mem_setOf_eq, toDual_sub,
-      OrderDual.toDual_ofDual, toDual_add, Equiv.coe_fn_mk, Prod.Lex.le_iff,
+    simp only [beforeN, Set.coe_setOf, Set.mem_setOf_eq, Equiv.coe_fn_mk, Prod.Lex.le_iff,
       ofLex_toLex, Subtype.forall, Lex.forall, Prod.forall, OrderDual.forall,
-      OrderDual.toDual_le_toDual, Subtype.mk_le_mk, OrderDual.toDual_lt_toDual,
+      OrderDual.toDual_le_toDual, ← toDual_sub, Subtype.mk_le_mk, OrderDual.toDual_lt_toDual,
       EmbeddingLike.apply_eq_iff_eq]
-    intro a b n_le_a c d n_le_c
-    constructor
-    · intro h
-      obtain an_lt_cn | ⟨an_eq_cn, b_le_d⟩ := h
-      · simp only [← toDual_sub, OrderDual.toDual_lt_toDual] at an_lt_cn
-        omega
-      · simp only [← toDual_sub, EmbeddingLike.apply_eq_iff_eq] at an_eq_cn
-        grind
-    · intro h
-      simp only [← toDual_sub, OrderDual.toDual_lt_toDual,
-        EmbeddingLike.apply_eq_iff_eq]
-      obtain c_lt_a | ⟨a_eq_c, b_le_d⟩ := h
-      <;> grind
+    grind

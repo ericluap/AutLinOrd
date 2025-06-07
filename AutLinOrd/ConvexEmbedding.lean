@@ -113,3 +113,33 @@ def InitialSeg.toConvexEmbedding [PartialOrder α] [PartialOrder β]
 
 instance [PartialOrder α] [PartialOrder β] : Coe (α ≤i β) (α ≤c β) where
   coe f := f.toConvexEmbedding
+
+/--
+  `A ∩ B` convexly embeds in `A`.
+-/
+def intersect_convex_first [LinearOrder α] (A B : Set α)
+    (B_interval : B.OrdConnected) : (A ∩ B : Set α) ≤c A where
+  toFun x := ⟨x.val, x.prop.1⟩
+  inj' := by simp [Function.Injective]
+  map_rel_iff' := by simp
+  imageOrdConnected := by
+    simp only [Set.ordConnected_iff, Set.inter_subset_left, Set.range_inclusion,
+      Set.mem_inter_iff, Subtype.coe_prop, true_and, Set.mem_setOf_eq,
+      Subtype.forall, Subtype.mk_le_mk] at B_interval ⊢
+    intro a a_mem_A a_mem_B b b_mem_A b_mem_B a_le_b x x_mem_icc
+    simp only [Set.mem_setOf_eq]
+    exact B_interval a a_mem_B b b_mem_B a_le_b x_mem_icc
+
+/--
+  `A ∩ B` convexly embeds in `B`.
+-/
+def intersect_convex_second [LinearOrder α] (A B : Set α)
+    (A_interval : A.OrdConnected) : (A ∩ B : Set α) ≤c B where
+  toFun x := ⟨x.val, x.prop.2⟩
+  inj' := by simp [Function.Injective]
+  map_rel_iff' := by simp
+  imageOrdConnected := by
+    simp [Set.ordConnected_iff] at A_interval ⊢
+    intro a a_mem_B a_mem_A b b_mem_B b_mem_A a_le_b x x_mem_icc
+    simp only [Set.mem_setOf_eq]
+    exact A_interval a a_mem_A b b_mem_A a_le_b x_mem_icc

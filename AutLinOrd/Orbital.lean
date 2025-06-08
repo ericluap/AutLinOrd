@@ -1,6 +1,11 @@
 import AutLinOrd.CombineAt
 import Mathlib.Data.Set.Card
 
+/-!
+  This file defines `orbital f`. If `f` is a bump, then `orbital f` is its
+  unique orbital. Otherwise, `orbital f` is the empty set.
+-/
+
 variable {α : Type*} [LinearOrder α]
 
 /--

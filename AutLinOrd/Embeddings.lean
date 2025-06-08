@@ -1,6 +1,10 @@
 import Mathlib.Order.InitialSeg
 import Mathlib.Tactic.ApplyFun
 
+/-!
+  This file proves basic facts combining order isomorphims and initial segments.
+-/
+
 variable [LinearOrder α] [LinearOrder β]
 
 /--

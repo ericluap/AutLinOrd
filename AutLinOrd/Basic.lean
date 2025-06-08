@@ -1,6 +1,11 @@
 import Mathlib
 import AutLinOrd.Orbital
 
+/-!
+  This file defines the bubble relation and proves it is a
+  convex equivalence relation.
+-/
+
 variable {α : Type*} [LinearOrder α]
 
 /--

@@ -1,6 +1,10 @@
 import Mathlib.Order.InitialSeg
 import Mathlib.Order.Interval.Set.OrdConnected
-import Mathlib
+
+/-!
+  This file defines a convex embedding between two linear orders
+  and introduces the notation `A ≤c B` for it.
+-/
 
 /--
   A `ConvexEmbedding` is an `OrderEmbedding` whose image is `OrdConnected`.

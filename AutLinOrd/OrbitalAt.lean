@@ -1,5 +1,10 @@
 import AutLinOrd.ElemOrbital
 
+/-!
+  This file defins `orbital_at f x` which keeps only the orbital of `f` at `x`
+  and is the identity everywhere else.
+-/
+
 variable {α : Type*} [LinearOrder α]
 
 /--

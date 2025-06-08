@@ -1,5 +1,10 @@
 import AutLinOrd.ElemOrbital
 
+/-!
+  This file defines `non_decr_at f x` which is equal to either `f` or `f⁻¹`
+  such that it is nondecreasing at `x`.
+-/
+
 variable {α : Type*} [LinearOrder α]
 
 /--

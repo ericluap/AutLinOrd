@@ -1,6 +1,10 @@
 import Mathlib.Order.UpperLower.Closure
 import Mathlib.Tactic.Order
 
+/-!
+  Defines the `OrdClosure` of a set. It is the smallest `OrdConnected` set
+  containing a given set. It is sometimes also called the convex closure.
+-/
 section OrdClosure
 variable {α : Type*} [Preorder α]
 

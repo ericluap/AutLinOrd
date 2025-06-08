@@ -2,6 +2,10 @@ import Mathlib.Algebra.Group.NatPowAssoc
 import Mathlib.Algebra.Order.Group.End
 import Mathlib.Order.Hom.Basic
 
+/-!
+  Basic facts about powers of linear order automorphisms.
+-/
+
 variable {α : Type*} [LinearOrder α]
 
 theorem add_pows (f : α ≃o α) (z y : ℤ) (x : α) :

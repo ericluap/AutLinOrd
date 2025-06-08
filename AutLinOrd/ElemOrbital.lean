@@ -8,6 +8,13 @@ import Mathlib.Algebra.Order.Group.Action.End
 import Mathlib.Data.Int.LeastGreatest
 import Mathlib.GroupTheory.GroupAction.Defs
 
+/-!
+  This file defines `elem_orbit f x`, which is the orbit of `x` under `f`.
+  It then defines `elem_orbital f x`, the orbital of `x` under `f`,
+  as the `OrdClosure` of the orbit of `x`
+  under `f`. It then proves many key facts about the oribtal of `x` under `f`.
+-/
+
 variable {α : Type*} [LinearOrder α]
 
 /--

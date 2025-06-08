@@ -1,6 +1,20 @@
-import Mathlib
 import AutLinOrd.ConvexEmbedding
 import AutLinOrd.ExtendsLeftRight
+import Mathlib.Algebra.Order.Group.Nat
+import Mathlib.Algebra.Order.Group.Synonym
+import Mathlib.Data.Nat.Find
+import Mathlib.Data.Prod.Lex
+import Mathlib.Data.Nat.Cast.Synonym
+
+/-!
+  This file proves facts about linear orders of the form `ℕ ×ₗ A` and `ℕᵒᵈ ×ₗ A`.
+
+  It shows that if `S` is a subset of `ℕ ×ₗ A`, then there exists a `T` such that
+  `T` is initial in `S` and `T` convexly embeds in `A` (and the dual statement).
+
+  It also shows that for any `n : ℕ`, `ℕ≥n ×ₗ A` is isomorphic to `ℕ ×ₗ A`
+  (and the dual statement).
+-/
 
 seal OrderDual
 seal Lex
@@ -95,14 +109,81 @@ theorem lowerbound_subset_omega {A : Type u} [LinearOrder A] (S : Set (ℕ ×ₗ
       have : T ≤c A := na_iso_a.toInitialSeg.toConvexEmbedding.comp t_convex_na
       exact Nonempty.intro this
     -- `T` is nonempty
-    · simp only [nonempty_subtype, Set.mem_inter_iff, Lex.exists,
-        Prod.exists, T, nA, fixed_first_coord]
+    · simp only [fixed_first_coord, nonempty_subtype, Set.mem_inter_iff, Set.mem_setOf_eq,
+      Lex.exists, ofLex_toLex, Prod.exists, exists_and_left, exists_eq_left, T, nA, n]
       simp only [Lex.exists, EmbeddingLike.apply_eq_iff_eq, Prod.exists,
         Prod.mk.injEq, exists_eq_right, exists_and_right, exists_eq_right',
         intersectsS, T, nA] at n_intersectsS
       obtain ⟨x, hx⟩ := n_intersectsS
-      use n, x
-      simp [hx, nA]
+      use x
+
+/--
+  If `S` is an `OrdConnected` and `Nonempty` subset of `ℕᵒᵈ ×ₗ A`, then
+  there exists an final segment of `S` that convexly embeds in `A`.
+-/
+theorem upperbound_subset_omega_dual {A : Type u} [LinearOrder A] (S : Set (ℕᵒᵈ ×ₗ A))
+    (s_nonempty : Nonempty S) (s_ordConnected : S.OrdConnected) :
+    ∃(T : Type u) (_ : LinearOrder T),
+    Nonempty (Tᵒᵈ ≤i Sᵒᵈ) ∧ Nonempty (T ≤c A) ∧ Nonempty T := by
+  -- Find the minimal `n : ℕ` such that `n ×ₗ A` intersects `S`
+  let intersectsS (n : ℕ) := ∃s ∈ S, ∃a : A, toLex (OrderDual.toDual n, a) = s
+  have existsValidN : ∃n, intersectsS n := by
+    simp only [nonempty_subtype, Lex.exists, Prod.exists] at s_nonempty
+    obtain ⟨n, ⟨a, a_n_mem⟩⟩ := s_nonempty
+    use OrderDual.ofDual n, toLex (n, a)
+    simp only [a_n_mem, ofDual_natCast, EmbeddingLike.apply_eq_iff_eq, Prod.mk.injEq,
+      exists_eq_right, true_and]
+    rfl
+  open Classical in (
+  have n_intersectsS := Nat.find_spec existsValidN
+  have n_min_intersectsS (m : ℕ) := Nat.find_min' (m := m) existsValidN
+  set n := Nat.find existsValidN)
+
+  -- `n ×ₗ A` extends `S` to the left and is `OrdConnected`.
+  set nA := fixed_first_coord A (OrderDual.toDual n)
+
+  have na_extendsRight_S : ExtendsRight nA S := by
+    simp only [ExtendsRight, fixed_first_coord, Set.mem_setOf_eq, Prod.Lex.le_iff, Lex.exists,
+      ofLex_toLex, Prod.exists, exists_and_left, exists_eq_left, Lex.forall, Prod.forall,
+      OrderDual.forall, OrderDual.toDual_lt_toDual, EmbeddingLike.apply_eq_iff_eq, Intersect, nA]
+    simp only [Lex.exists, EmbeddingLike.apply_eq_iff_eq, Prod.exists, Prod.mk.injEq,
+      exists_eq_right, exists_and_right, exists_eq_right', intersectsS, nA] at n_intersectsS
+    obtain ⟨x, hx⟩ := n_intersectsS
+    have nx_mem_nA : toLex (OrderDual.toDual n, x) ∈ nA := by
+      simp [nA, fixed_first_coord]
+    constructor
+    · intro m a ma_mem_S
+      use a
+      have := n_min_intersectsS m (by grind)
+      conv => enter [2, 1]; rw [Eq.comm]
+      simp [this.lt_or_eq]
+    · grind
+
+  have nA_ordConnected : nA.OrdConnected :=
+    fixed_first_coord_ordConnected (OrderDual.toDual n)
+
+  set T := S ∩ nA
+  use T, inferInstance
+  constructor
+
+  -- `T` is an `InitialSeg` of `S`
+  · have : Tᵒᵈ ≤i Sᵒᵈ :=
+      extendsRight_intersect_final S nA nA_ordConnected na_extendsRight_S
+    exact Nonempty.intro this
+  · constructor
+    -- `T` convexly embeds in `A`
+    · have t_convex_na : T ≤c nA := intersect_convex_second S nA s_ordConnected
+      have na_iso_a : nA ≃o A := fixed_first_coord_iso (OrderDual.toDual n)
+      have : T ≤c A := na_iso_a.toInitialSeg.toConvexEmbedding.comp t_convex_na
+      exact Nonempty.intro this
+    -- `T` is nonempty
+    · simp only [fixed_first_coord, nonempty_subtype, Set.mem_inter_iff, Set.mem_setOf_eq,
+      Lex.exists, ofLex_toLex, Prod.exists, exists_and_right, exists_eq_right, T, nA]
+      simp only [Lex.exists, EmbeddingLike.apply_eq_iff_eq, Prod.exists,
+        Prod.mk.injEq, exists_eq_right, exists_and_right, exists_eq_right',
+        intersectsS, T, nA] at n_intersectsS
+      obtain ⟨x, hx⟩ := n_intersectsS
+      use x
 
 /--
   The final segment of `ℕ ×ₗ I` starting at `n`
@@ -110,24 +191,6 @@ theorem lowerbound_subset_omega {A : Type u} [LinearOrder A] (S : Set (ℕ ×ₗ
 -/
 def afterN (I : Type*) [LinearOrder I] (n : ℕ) :=
   {x : ℕ ×ₗ I | n ≤ (ofLex x).1}
-
-/--
-  `afterN I n` is a final segment `ℕᵒᵈ ×ₗ I`.
--/
-def afterN_final (I : Type*) [LinearOrder I] (n : ℕ) :
-    (afterN I n)ᵒᵈ ≤i (ℕ ×ₗ I)ᵒᵈ where
-  toFun x := OrderDual.toDual (OrderDual.ofDual x).val
-  inj' := by simp [Function.Injective]
-  map_rel_iff' := by simp
-  mem_range_of_rel' := by
-    simp only [afterN, Set.coe_setOf, Set.mem_setOf_eq, RelEmbedding.coe_mk,
-      Function.Embedding.coeFn_mk, Set.mem_range, OrderDual.exists, OrderDual.ofDual_toDual,
-      Subtype.exists, exists_prop, Lex.exists, ofLex_toLex, Prod.exists,
-      exists_and_left, OrderDual.forall, OrderDual.toDual_lt_toDual,
-      Prod.Lex.lt_iff, EmbeddingLike.apply_eq_iff_eq, Lex.forall, Prod.forall,
-      Prod.mk.injEq, exists_eq_right, Subtype.forall, exists_eq, and_true,
-      exists_eq_right]
-    omega
 
 /--
   `afterN I n` is order isomorphic to `ℕ ×ₗ I`.
@@ -149,22 +212,6 @@ def afterN_iso (I : Type*) [LinearOrder I] (n : ℕ) :
 -/
 def beforeN (J : Type*) [LinearOrder J] (n : ℕ) :=
   {x : ℕᵒᵈ ×ₗ J | (ofLex x).1 ≤ OrderDual.toDual n}
-
-/--
-  `beforeN J n` is an initial segment of `ℕᵒᵈ ×ₗ J`.
--/
-def beforeN_initial (J : Type*) [LinearOrder J] (n : ℕ) :
-    beforeN J n ≤i ℕᵒᵈ ×ₗ J where
-  toFun x := x.val
-  inj' := by simp
-  map_rel_iff' := by simp
-  mem_range_of_rel' := by
-    simp only [beforeN, Set.coe_setOf, Set.mem_setOf_eq, RelEmbedding.coe_mk,
-      Function.Embedding.coeFn_mk, Prod.Lex.lt_iff, Subtype.range_coe_subtype,
-      Lex.forall, ofLex_toLex, Prod.forall, OrderDual.forall,
-      OrderDual.toDual_le_toDual, Subtype.forall, OrderDual.toDual_lt_toDual,
-      EmbeddingLike.apply_eq_iff_eq]
-    omega
 
 /--
   `before J n` is order isomorphic to `ℕᵒᵈ ×ₗ J`.

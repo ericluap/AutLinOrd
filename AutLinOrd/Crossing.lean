@@ -4,6 +4,13 @@ import AutLinOrd.ExtendsLeftRight
 import AutLinOrd.Embeddings
 import AutLinOrd.OmegaSum
 
+/-!
+  This file proves that if two intervals in a linear order `A` and `B`
+  intersect such that `A` extends to the left and `B` extends to the right
+  and `A ≃o ℕ ×ₗ I` and `B ≃o ℕᵒᵈ ×ₗ J`, then
+  `ℕ ×ₗ I` convexly embeds in `J` and `ℕᵒᵈ ×ₗ J` convexly embeds in `I`.
+-/
+
 variable [LinearOrder α]
 
 variable {A B : Set α}

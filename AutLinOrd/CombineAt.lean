@@ -1,5 +1,10 @@
 import AutLinOrd.OrbitalAtNonDecr
 
+/-!
+  This files defines `combine_at f g x` which is an automorphism whose orbital
+  at `x` is the union of that of `f` and `g`.
+-/
+
 variable {α : Type*} [LinearOrder α]
 
 /--

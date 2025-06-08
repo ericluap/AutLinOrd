@@ -1,6 +1,11 @@
 import AutLinOrd.NonDecrAt
 import AutLinOrd.OrbitalAt
 
+/-!
+  This file defines `orbital_at_non_decr f x` which
+  turns `f` into just its orbital at `x` and makes it nondecreasing there.
+-/
+
 variable {α : Type*} [LinearOrder α]
 
 /--

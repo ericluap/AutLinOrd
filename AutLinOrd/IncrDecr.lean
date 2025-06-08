@@ -4,6 +4,11 @@ import Mathlib.Algebra.Order.Ring.Int
 import Mathlib.Tactic.ApplyFun
 import Mathlib.Tactic.Order
 
+/-!
+  This file proves basic facts about what it means for an order automorphism
+  to be increasing or decreasing at a given point.
+-/
+
 variable {α : Type*} [LinearOrder α]
 
 /--

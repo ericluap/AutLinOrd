@@ -1,5 +1,10 @@
-import Mathlib
 import AutLinOrd.NonDecrAt
+import Mathlib.Data.Prod.Lex
+
+/-!
+  This file proves that orbital of `x` under `f` is isomorphic to `ℤ` many
+  copies of the half-open interval `[x, f x)`.
+-/
 
 variable {α : Type*} [LinearOrder α]
 

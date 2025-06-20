@@ -1,6 +1,8 @@
 import Mathlib.Order.InitialSeg
 import Mathlib.Order.Interval.Set.OrdConnected
 
+seal OrderDual
+
 /-!
   This file defines a convex embedding between two linear orders
   and introduces the notation `A ≤c B` for it.
@@ -15,6 +17,18 @@ structure ConvexEmbedding (α β : Type*) [Preorder α] [Preorder β] extends α
 
 @[inherit_doc]
 infixl:24 " ≤c " => ConvexEmbedding
+
+def OrderEmbedding.dual' [Preorder α] [Preorder β] (f : α ↪o β) :
+    (αᵒᵈ ↪o βᵒᵈ) where
+  toFun := OrderDual.toDual ∘ f ∘ OrderDual.ofDual
+  inj' := by simp [Function.Injective]
+  map_rel_iff' := by simp
+
+def OrderEmbedding.undual' [Preorder α] [Preorder β] (f : αᵒᵈ ↪o βᵒᵈ) :
+    (α ↪o β) where
+  toFun := OrderDual.ofDual ∘ f ∘ OrderDual.toDual
+  inj' := by simp [Function.Injective]
+  map_rel_iff' := by simp
 
 namespace ConvexEmbedding
 
@@ -38,6 +52,43 @@ instance : FunLike (ConvexEmbedding α β) α β where
     simp only [Function.Embedding.toFun_eq_coe, RelEmbedding.coe_toEmbedding,
       DFunLike.coe_fn_eq] at h
     cases f; cases g; congr
+
+/--
+  If `z` is in between `f x` and `f y`, then `z` is in the range of `f`.
+-/
+theorem mem_icc_mem_range
+    (x_le_y : x ≤ y) (z_mem_range : z ∈ Set.Icc (f x) (f y)) :
+    z ∈ Set.range f := by
+  have := f.imageOrdConnected
+  simp only [Function.Embedding.toFun_eq_coe, RelEmbedding.coe_toEmbedding, Set.ordConnected_iff,
+    Set.mem_range, forall_exists_index, forall_apply_eq_imp_iff, OrderEmbedding.le_iff_le] at this
+  exact this x y x_le_y z_mem_range
+
+def dual (f : α ≤c β) : αᵒᵈ ≤c βᵒᵈ :=
+  ⟨f.toOrdEmbedding.dual', by
+    simp [OrderEmbedding.dual', Set.ordConnected_iff]
+    intro x y y_le_x z z_mem_icc
+    simp only [Set.mem_range, Function.comp_apply, OrderDual.exists, OrderDual.ofDual_toDual]
+    simp only [Set.mem_preimage] at z_mem_icc
+    have := mem_icc_mem_range f y_le_x z_mem_icc
+    simp only [Set.mem_range] at this
+    obtain ⟨y, hy⟩ := this
+    use y
+    exact (Equiv.apply_eq_iff_eq_symm_apply OrderDual.toDual).mpr hy
+    ⟩
+
+def undual (f : αᵒᵈ ≤c βᵒᵈ) : α ≤c β :=
+  ⟨f.toOrdEmbedding.undual', by
+    simp [OrderEmbedding.undual', Set.ordConnected_iff]
+    intro x y y_le_x z z_mem_icc
+    simp only [Set.mem_range, Function.comp_apply, OrderDual.exists, OrderDual.ofDual_toDual]
+    simp only [Set.mem_preimage] at z_mem_icc
+    have := mem_icc_mem_range f y_le_x z_mem_icc
+    simp only [Set.mem_range] at this
+    obtain ⟨y, hy⟩ := this
+    use OrderDual.ofDual y
+    exact (Equiv.apply_eq_iff_eq_symm_apply OrderDual.ofDual).mpr hy
+    ⟩
 
 @[simp]
 theorem le_iff_le {a b} : f a ≤ f b ↔ a ≤ b :=
@@ -118,6 +169,11 @@ def InitialSeg.toConvexEmbedding [PartialOrder α] [PartialOrder β]
 instance [PartialOrder α] [PartialOrder β] : Coe (α ≤i β) (α ≤c β) where
   coe f := f.toConvexEmbedding
 
+def InitialSeg.toUndualConvexEmbedding [PartialOrder α] [PartialOrder β]
+    (final : αᵒᵈ ≤i βᵒᵈ) : α ≤c β := final.toConvexEmbedding.undual
+
+def OrderIso.toConvexEmbedding [PartialOrder α] [PartialOrder β] (f : α ≃o β) :
+    α ≤c β := ⟨f, by simp [Set.ordConnected_univ]⟩
 /--
   `A ∩ B` convexly embeds in `A`.
 -/

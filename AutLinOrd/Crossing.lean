@@ -1,6 +1,3 @@
-import Mathlib
-import AutLinOrd.ConvexEmbedding
-import AutLinOrd.ExtendsLeftRight
 import AutLinOrd.Embeddings
 import AutLinOrd.OmegaSum
 
@@ -332,3 +329,5 @@ theorem crossing_embed {I J : Type u} [LinearOrder I] [LinearOrder J]
     obtain ⟨convex⟩ := convex
     have := initial_in_omega_star_swap init
     exact Nonempty.intro (convex.comp this)
+
+#min_imports

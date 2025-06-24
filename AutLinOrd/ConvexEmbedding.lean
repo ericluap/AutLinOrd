@@ -53,6 +53,20 @@ instance : FunLike (ConvexEmbedding α β) α β where
       DFunLike.coe_fn_eq] at h
     cases f; cases g; congr
 
+instance : EmbeddingLike (α ≤c β) α β where
+  injective' f := f.inj'
+
+instance : OrderHomClass (α ≤c β) α β where
+  map_rel f := f.map_rel_iff'.mpr
+
+@[simp]
+theorem le_iff_le {a b} : f a ≤ f b ↔ a ≤ b := f.map_rel_iff
+
+@[simp]
+theorem lt_iff_lt {a b} : f a < f b ↔ a < b := by
+  have {x} : f x = f.toOrdEmbedding x := by rfl
+  simp [this]
+
 /--
   If `z` is in between `f x` and `f y`, then `z` is in the range of `f`.
 -/
@@ -89,19 +103,6 @@ def undual (f : αᵒᵈ ≤c βᵒᵈ) : α ≤c β :=
     use OrderDual.ofDual y
     exact (Equiv.apply_eq_iff_eq_symm_apply OrderDual.ofDual).mpr hy
     ⟩
-
-@[simp]
-theorem le_iff_le {a b} : f a ≤ f b ↔ a ≤ b :=
-  f.map_rel_iff
-
-@[simp]
-theorem lt_iff_lt {a b} : f a < f b ↔ a < b := by
-  constructor
-  · intro h
-    exact (OrderEmbedding.lt_iff_lt f.toRelEmbedding).mp h
-  · intro h
-    simp [lt_iff_le_not_le]
-    exact lt_iff_le_not_le.mp h
 
 theorem eq_iff_eq {a b} : f a = f b ↔ a = b :=
   f.injective.eq_iff

@@ -173,8 +173,12 @@ instance [PartialOrder α] [PartialOrder β] : Coe (α ≤i β) (α ≤c β) whe
 def InitialSeg.toUndualConvexEmbedding [PartialOrder α] [PartialOrder β]
     (final : αᵒᵈ ≤i βᵒᵈ) : α ≤c β := final.toConvexEmbedding.undual
 
-def OrderIso.toConvexEmbedding [PartialOrder α] [PartialOrder β] (f : α ≃o β) :
+@[coe]
+def OrderIso.toConvexEmbedding [Preorder α] [Preorder β] (f : α ≃o β) :
     α ≤c β := ⟨f, by simp [Set.ordConnected_univ]⟩
+
+instance [Preorder α] [Preorder β] : Coe (α ≃o β) (α ≤c β) where
+  coe f := f.toConvexEmbedding
 /--
   `A ∩ B` convexly embeds in `A`.
 -/

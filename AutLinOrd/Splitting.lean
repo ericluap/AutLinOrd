@@ -62,44 +62,14 @@ def two_convex_omega : Fin 2 ≤c ℕ where
   map_rel_iff' := by simp
   imageOrdConnected := by simp [Fin.range_val, Set.ordConnected_Iio]
 
+/-- `2` and its order dual are isomorphic -/
+def two_iso_twoDual : (Fin 2) ≃o (Fin 2)ᵒᵈ := Fin.revOrderIso.symm
+
 /--
   `2` convexly embeds in `ℕᵒᵈ`
 -/
-def two_convex_omegaDual : Fin 2 ≤c ℕᵒᵈ where
-  toFun x :=
-    match x with
-    | 0 => 1
-    | 1 => 0
-  inj' := by
-    simp only [Function.Injective]
-    intro a b
-    fin_cases a
-    <;> fin_cases b
-    <;> simp
-  map_rel_iff' := by
-    simp only [Function.Embedding.coeFn_mk, ←OrderDual.ofDual_le_ofDual]
-    intro a b
-    fin_cases a
-    <;> fin_cases b
-    <;> simp
-  imageOrdConnected := by
-    simp [Set.ordConnected_iff, ←OrderDual.ofDual_le_ofDual]
-    intro a b
-    fin_cases a
-    <;> fin_cases b
-    <;> simp
-    · use 0
-    · intro z z_mem
-      simp [←OrderDual.ofDual_le_ofDual] at z_mem ⊢
-      simp_rw [←OrderDual.ofDual_inj]
-      cases z_mem.lt_or_eq
-      · use 1
-        simp
-        grind
-      · use 0
-        simp
-        grind
-    · use 1
+def two_convex_omegaDual : Fin 2 ≤c ℕᵒᵈ :=
+  two_convex_omega.dual.comp two_iso_twoDual
 
 /--
   `2A` convexly embeds in `ℕA`

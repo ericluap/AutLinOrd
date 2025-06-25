@@ -1,4 +1,4 @@
-import AutLinOrd.NonDecrAt
+import AutLinOrd.Orbital.NonDecrAt
 import Mathlib.Data.Prod.Lex
 
 /-!

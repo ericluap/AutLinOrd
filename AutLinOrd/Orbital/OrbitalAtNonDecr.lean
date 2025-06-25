@@ -1,5 +1,5 @@
-import AutLinOrd.NonDecrAt
-import AutLinOrd.OrbitalAt
+import AutLinOrd.Orbital.NonDecrAt
+import AutLinOrd.Orbital.OrbitalAt
 
 /-!
   This file defines `orbital_at_non_decr f x` which

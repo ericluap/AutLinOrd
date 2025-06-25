@@ -204,7 +204,9 @@ def intersect_convex_second [LinearOrder α] (A B : Set α)
   inj' := by simp [Function.Injective]
   map_rel_iff' := by simp
   imageOrdConnected := by
-    simp [Set.ordConnected_iff] at A_interval ⊢
+    simp only [Set.ordConnected_iff, Set.inter_subset_right, Set.range_inclusion, Set.mem_inter_iff,
+      Subtype.coe_prop, and_true, Set.mem_setOf_eq, Subtype.forall,
+      Subtype.mk_le_mk] at A_interval ⊢
     intro a a_mem_B a_mem_A b b_mem_B b_mem_A a_le_b x x_mem_icc
     simp only [Set.mem_setOf_eq]
     exact A_interval a a_mem_A b b_mem_A a_le_b x_mem_icc

@@ -1,4 +1,4 @@
-import AutLinOrd.OrbitalAtNonDecr
+import AutLinOrd.Orbital.OrbitalAtNonDecr
 
 /-!
   This files defines `combine_at f g x` which is an automorphism whose orbital

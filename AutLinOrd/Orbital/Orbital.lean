@@ -1,4 +1,4 @@
-import AutLinOrd.CombineAt
+import AutLinOrd.Orbital.CombineAt
 import Mathlib.Data.Set.Card
 
 /-!

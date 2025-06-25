@@ -1,4 +1,4 @@
-import AutLinOrd.ElemOrbital
+import AutLinOrd.Orbital.ElemOrbital
 
 /-!
   This file defines `non_decr_at f x` which is equal to either `f` or `f⁻¹`

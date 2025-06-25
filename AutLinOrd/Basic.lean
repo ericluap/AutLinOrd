@@ -1,5 +1,5 @@
 import Mathlib
-import AutLinOrd.Orbital
+import AutLinOrd.Orbital.Orbital
 
 /-!
   This file defines the bubble relation and proves it is a

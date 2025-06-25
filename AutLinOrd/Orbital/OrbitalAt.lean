@@ -1,4 +1,4 @@
-import AutLinOrd.ElemOrbital
+import AutLinOrd.Orbital.ElemOrbital
 
 /-!
   This file defins `orbital_at f x` which keeps only the orbital of `f` at `x`

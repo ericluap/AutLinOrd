@@ -1,5 +1,5 @@
 import Mathlib
-import AutLinOrd.ConvexEmbedding
+import AutLinOrd.Embeddings.ConvexEmbedding
 
 seal OrderDual
 seal Lex

@@ -1,5 +1,5 @@
-import AutLinOrd.Embeddings
-import AutLinOrd.OmegaSum
+import AutLinOrd.Embeddings.Embeddings
+import AutLinOrd.Crossing.OmegaSum
 
 seal OrderDual
 seal Lex
@@ -35,7 +35,7 @@ theorem initial_seg_embeds_in_single {I J : Type u} [LinearOrder I]
     intersect_extendsLeftRight_initial A_interval extendsLeftRight
 
   set map_S_to_A := (A_iso.toConvexEmbedding).comp
-    S_final_A.toUndualConvexEmbedding
+    S_final_A.undual
   set S' := Set.range map_S_to_A
 
   have S_nonempty : Nonempty S := by
@@ -53,8 +53,8 @@ theorem initial_seg_embeds_in_single {I J : Type u} [LinearOrder I]
 
   use T, inferInstance
   constructor
-  · have S_init_NJ := iso_initial S_initial_B B_iso
-    have T_init_S := iso_initial T_init_S' S_iso_S'.symm
+  · have S_init_NJ := S_initial_B.trans B_iso.toInitialSeg
+    have T_init_S := T_init_S'.trans S_iso_S'.symm.toInitialSeg
     exact Nonempty.intro (T_init_S.trans S_init_NJ)
   · constructor
     · exact Nonempty.intro T_convex_I
@@ -79,26 +79,26 @@ theorem final_seg_embeds_in_single {I J : Type u} [LinearOrder I]
   have S_initial_B : S ≤i B :=
     intersect_extendsLeftRight_initial A_interval extendsLeftRight
 
-  set S' := Set.range (iso_initial S_initial_B B_iso)
+  set S' := Set.range (S_initial_B.trans B_iso.toInitialSeg)
 
   have S_nonempty : Nonempty S := by
       simp [S_def, extendsLeftRight_nonempty_inter A B extendsLeftRight]
   have S_ordConnected : S.OrdConnected := Set.OrdConnected.inter'
 
   have S_iso_S' : S ≃o S' := ordEmbedding_iso_range (α := S) (β := ℕᵒᵈ ×ₗ J)
-      (iso_initial S_initial_B B_iso)
+      (S_initial_B.trans B_iso.toInitialSeg)
   have S'_nonempty : Nonempty S' :=
     (Equiv.nonempty_congr S_iso_S').mp S_nonempty
   have S'_ordConnected : S'.OrdConnected := image_initialSeg_ordConnected
-    (iso_initial S_initial_B B_iso)
+    (S_initial_B.trans B_iso.toInitialSeg)
 
   obtain ⟨T, _, ⟨T_final_S'⟩, ⟨T_convex_J⟩, T_nonempty⟩ :=
     upperbound_subset_omega_dual S' S'_nonempty S'_ordConnected
 
   use T, inferInstance
   constructor
-  · have S_final_NI := iso_initial S_final_A A_iso.dual
-    have T_final_S := iso_initial T_final_S' S_iso_S'.symm.dual
+  · have S_final_NI := S_final_A.trans A_iso.dual.toInitialSeg
+    have T_final_S := T_final_S'.trans S_iso_S'.symm.dual.toInitialSeg
     exact Nonempty.intro (T_final_S.trans S_final_NI)
   · constructor
     · exact Nonempty.intro T_convex_J
@@ -321,7 +321,7 @@ theorem crossing_embed {I J : Type u} [LinearOrder I] [LinearOrder J]
     obtain ⟨final⟩ := final
     obtain ⟨convex⟩ := convex
     have := final_in_omega_swap final
-    exact Nonempty.intro (convex.comp this.toUndualConvexEmbedding)
+    exact Nonempty.intro (convex.comp this.undual)
   · obtain ⟨T, _, init, convex, T_nonempty⟩ := initial_seg_embeds_in_single
       A_interval B_interval extendsLeftRight A_iso B_iso
     simp only [←exists_true_iff_nonempty] at init convex

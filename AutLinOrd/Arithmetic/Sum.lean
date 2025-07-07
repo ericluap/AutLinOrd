@@ -1,28 +1,10 @@
 import Mathlib
-import AutLinOrd.ConvexEmbedding
-import AutLinOrd.Embeddings
+import AutLinOrd.Embeddings.ConvexEmbedding
+import AutLinOrd.Embeddings.Embeddings
 import AutLinOrd.OrderIso
 
 seal OrderDual
 seal Lex
-
-/--
-  `α` is initial in `α + β`
--/
-def fst_inital_sum [Preorder α] [Preorder β] : α ≤i α ⊕ₗ β where
-  toFun x := Sum.inlₗ x
-  inj' := by simp [Function.Injective]
-  map_rel_iff' := by simp
-  mem_range_of_rel' := by simp
-
-/--
-  `β` is final in `α + β`
--/
-def snd_final_sum [Preorder α] [Preorder β] : βᵒᵈ ≤i (α ⊕ₗ β)ᵒᵈ where
-  toFun x := OrderDual.toDual (Sum.inrₗ (OrderDual.ofDual x))
-  inj' := by simp [Function.Injective]
-  map_rel_iff' := by simp
-  mem_range_of_rel' := by simp
 
 /--
   `n + ℕ` is isomorphic to `ℕ`

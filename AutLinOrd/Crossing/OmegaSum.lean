@@ -1,5 +1,5 @@
-import AutLinOrd.ConvexEmbedding
-import AutLinOrd.ExtendsLeftRight
+import AutLinOrd.Embeddings.InitialSeg
+import AutLinOrd.Crossing.ExtendsLeftRight
 import Mathlib.Algebra.Order.Group.Nat
 import Mathlib.Algebra.Order.Group.Synonym
 import Mathlib.Data.Nat.Find

@@ -1,4 +1,4 @@
-import Mathlib.Order.InitialSeg
+import Mathlib.Algebra.Group.Defs
 import Mathlib.Order.Interval.Set.OrdConnected
 
 seal OrderDual
@@ -33,6 +33,12 @@ def OrderEmbedding.undual' [Preorder α] [Preorder β] (f : αᵒᵈ ↪o βᵒ�
 namespace ConvexEmbedding
 
 variable [Preorder α] [Preorder β] [Preorder γ] (f : α ≤c β)
+
+def refl : α ≤c α where
+  toFun := id
+  inj' := by simp [Function.Injective]
+  map_rel_iff' := by simp
+  imageOrdConnected := by simp [Set.ordConnected_univ]
 
 /--
   Every `ConvexEmbedding` is an `OrderEmbedding`.
@@ -77,6 +83,17 @@ theorem mem_icc_mem_range
   simp only [Function.Embedding.toFun_eq_coe, RelEmbedding.coe_toEmbedding, Set.ordConnected_iff,
     Set.mem_range, forall_exists_index, forall_apply_eq_imp_iff, OrderEmbedding.le_iff_le] at this
   exact this x y x_le_y z_mem_range
+
+/--
+  If `z` is in between `f x` and `f y`, then `z` is in the range of `f`.
+-/
+theorem le_and_le_mem_range
+    (fx_le_z : f x ≤ z) (z_le_fy : z ≤ f y) : z ∈ Set.range f := by
+  have z_mem_range : z ∈ Set.Icc (f x) (f y) := by simp [fx_le_z, z_le_fy]
+  have x_le_y : x ≤ y := by
+    have : f x ≤ f y := Preorder.le_trans _ _ _ fx_le_z z_le_fy
+    simpa
+  exact mem_icc_mem_range f x_le_y z_mem_range
 
 def dual (f : α ≤c β) : αᵒᵈ ≤c βᵒᵈ :=
   ⟨f.toOrdEmbedding.dual', by
@@ -128,7 +145,7 @@ theorem interval_convexEmbedding_interval {s : Set α}
   constructor
   · simp only [← ht, Set.mem_Icc, le_iff_le] at hy
     obtain ⟨x_le_t, t_lt_z⟩ := hy
-    simp only [Set.ordConnected_iff] at interval_s
+    rw [Set.ordConnected_iff] at interval_s
     exact interval_s x hx z hz x_le_z ⟨x_le_t, t_lt_z⟩
   · exact ht
 
@@ -140,38 +157,50 @@ def comp (g : β ≤c γ) (f : α ≤c β) : α ≤c γ where
     rw [Set.range_comp]
     exact interval_convexEmbedding_interval g f.imageOrdConnected
 
+instance : Monoid (α ≤c α) where
+  one := .refl
+  mul f g := f.comp g
+  mul_assoc _ _ _ := rfl
+  one_mul _ := rfl
+  mul_one _ := rfl
+
+lemma one_def : (1 : α ≤c α) = .refl := rfl
+lemma mul_def (f g : α ≤c α) : (f * g) = f.comp g := rfl
+
+@[simp] lemma coe_one : ⇑(1 : α ≤c α) = id := rfl
+@[simp] lemma coe_mul (f g : α ≤c α) : ⇑(f * g) = f ∘ g := rfl
+
+lemma one_apply (a : α) : (1 : α ≤c α) a = a := rfl
+lemma mul_apply (e₁ e₂ : α ≤c α) (x : α) : (e₁ * e₂) x = e₁ (e₂ x) := rfl
+
+@[simp]
+theorem image_Ico : f '' Set.Ico a b = Set.Ico (f a) (f b) := by
+  ext z
+  simp only [Set.mem_image, Set.mem_Ico]
+  constructor
+  · intro h
+    obtain ⟨x, a_le_x, x_lt_b, fx_eq_z⟩ := h
+    simp [a_le_x]
+  · intro h
+    obtain ⟨y, hy⟩ := le_and_le_mem_range f h.1 h.2.le
+    use y
+    constructor
+    · constructor
+      · have := h.1
+        simpa [←hy, h.1]
+      · have := h.2
+        simpa [←hy]
+    · exact hy
+
+theorem add_pows_one (f : α ≤c α) (n : ℕ) :
+    f ((f ^ y) x) = (f ^ (1 + y)) x := by
+  conv =>
+    enter [1, 1]
+    rw [show f = f^1 by simp]
+  simp only [←Function.comp_apply (f := f^(1 : ℕ))]
+  simp only [←coe_mul, ←pow_add]
+
 end ConvexEmbedding
-
-/--
-  The image of an `InitialSeg` is `OrdConnected`.
--/
-theorem image_initialSeg_ordConnected [PartialOrder α] [PartialOrder β]
-    (f : α ≤i β) : (Set.range f).OrdConnected := by
-  have := f.mem_range_of_rel'
-  simp only [Function.Embedding.toFun_eq_coe, RelEmbedding.coe_toEmbedding,
-  InitialSeg.coe_toOrderEmbedding, Set.ordConnected_iff, Set.mem_range,
-  forall_exists_index, forall_apply_eq_imp_iff, InitialSeg.le_iff_le]
-  intro x z x_le_z y y_mem
-  obtain y_lt_initz | y_eq_initz := y_mem.2.lt_or_eq
-  · exact this z y y_lt_initz
-  · simp [y_eq_initz]
-
-/--
-  Every `InitialSeg` is a `ConvexEmbedding`.
--/
-@[coe]
-def InitialSeg.toConvexEmbedding [PartialOrder α] [PartialOrder β]
-    (initial : α ≤i β) : α ≤c β where
-  toFun := initial
-  inj' := by simp [Function.Injective]
-  map_rel_iff' := by simp
-  imageOrdConnected := image_initialSeg_ordConnected initial
-
-instance [PartialOrder α] [PartialOrder β] : Coe (α ≤i β) (α ≤c β) where
-  coe f := f.toConvexEmbedding
-
-def InitialSeg.toUndualConvexEmbedding [PartialOrder α] [PartialOrder β]
-    (final : αᵒᵈ ≤i βᵒᵈ) : α ≤c β := final.toConvexEmbedding.undual
 
 @[coe]
 def OrderIso.toConvexEmbedding [Preorder α] [Preorder β] (f : α ≃o β) :

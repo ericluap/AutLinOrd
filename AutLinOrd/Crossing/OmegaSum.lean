@@ -82,7 +82,7 @@ theorem lowerbound_subset_omega {A : Type u} [LinearOrder A] (S : Set (ℕ ×ₗ
       ofLex_toLex, Prod.exists, exists_and_left, exists_eq_left, Lex.forall, Prod.forall, Intersect,
       nA]
     simp only [Lex.exists, EmbeddingLike.apply_eq_iff_eq, Prod.exists, Prod.mk.injEq,
-      exists_eq_right, exists_and_right, exists_eq_right', intersectsS, nA] at n_intersectsS
+      exists_eq_right, exists_and_right, exists_eq_right', intersectsS] at n_intersectsS
     obtain ⟨x, hx⟩ := n_intersectsS
     have nx_mem_nA : toLex (n, x) ∈ nA := by simp [nA, fixed_first_coord]
     constructor
@@ -113,7 +113,7 @@ theorem lowerbound_subset_omega {A : Type u} [LinearOrder A] (S : Set (ℕ ×ₗ
       Lex.exists, ofLex_toLex, Prod.exists, exists_and_left, exists_eq_left, T, nA, n]
       simp only [Lex.exists, EmbeddingLike.apply_eq_iff_eq, Prod.exists,
         Prod.mk.injEq, exists_eq_right, exists_and_right, exists_eq_right',
-        intersectsS, T, nA] at n_intersectsS
+        intersectsS] at n_intersectsS
       obtain ⟨x, hx⟩ := n_intersectsS
       use x
 
@@ -131,7 +131,7 @@ theorem upperbound_subset_omega_dual {A : Type u} [LinearOrder A] (S : Set (ℕ�
     simp only [nonempty_subtype, Lex.exists, Prod.exists] at s_nonempty
     obtain ⟨n, ⟨a, a_n_mem⟩⟩ := s_nonempty
     use OrderDual.ofDual n, toLex (n, a)
-    simp only [a_n_mem, ofDual_natCast, EmbeddingLike.apply_eq_iff_eq, Prod.mk.injEq,
+    simp only [a_n_mem, EmbeddingLike.apply_eq_iff_eq, Prod.mk.injEq,
       exists_eq_right, true_and]
     rfl
   open Classical in (
@@ -147,7 +147,7 @@ theorem upperbound_subset_omega_dual {A : Type u} [LinearOrder A] (S : Set (ℕ�
       ofLex_toLex, Prod.exists, exists_and_left, exists_eq_left, Lex.forall, Prod.forall,
       OrderDual.forall, OrderDual.toDual_lt_toDual, EmbeddingLike.apply_eq_iff_eq, Intersect, nA]
     simp only [Lex.exists, EmbeddingLike.apply_eq_iff_eq, Prod.exists, Prod.mk.injEq,
-      exists_eq_right, exists_and_right, exists_eq_right', intersectsS, nA] at n_intersectsS
+      exists_eq_right, exists_and_right, exists_eq_right', intersectsS] at n_intersectsS
     obtain ⟨x, hx⟩ := n_intersectsS
     have nx_mem_nA : toLex (OrderDual.toDual n, x) ∈ nA := by
       simp [nA, fixed_first_coord]
@@ -181,7 +181,7 @@ theorem upperbound_subset_omega_dual {A : Type u} [LinearOrder A] (S : Set (ℕ�
       Lex.exists, ofLex_toLex, Prod.exists, exists_and_right, exists_eq_right, T, nA]
       simp only [Lex.exists, EmbeddingLike.apply_eq_iff_eq, Prod.exists,
         Prod.mk.injEq, exists_eq_right, exists_and_right, exists_eq_right',
-        intersectsS, T, nA] at n_intersectsS
+        intersectsS] at n_intersectsS
       obtain ⟨x, hx⟩ := n_intersectsS
       use x
 

@@ -7,6 +7,7 @@ import AutLinOrd.Crossing.OmegaSum
 import AutLinOrd.Embeddings.ConvexEmbedding
 import AutLinOrd.Embeddings.Embeddings
 import AutLinOrd.Embeddings.InitialSeg
+import AutLinOrd.Embeddings.OrderIso
 import AutLinOrd.IncrDecr
 import AutLinOrd.Orbital.CombineAt
 import AutLinOrd.Orbital.ElemOrbital
@@ -16,6 +17,5 @@ import AutLinOrd.Orbital.OrbitalAt
 import AutLinOrd.Orbital.OrbitalAtNonDecr
 import AutLinOrd.Orbital.ZSum
 import AutLinOrd.OrdClosure
-import AutLinOrd.OrderIso
 import AutLinOrd.Pow
 import AutLinOrd.Splitting

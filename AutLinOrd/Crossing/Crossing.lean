@@ -153,7 +153,7 @@ noncomputable def initial_in_omega_star_swap [LinearOrder T]
       have a_image_spec := a_image.choose_spec
       have b_image := le_intersect_j b_le_n1 k
       have b_image_spec := b_image.choose_spec
-      simp only [a_image, ↓reduceDIte, b_image, n] at h
+      simp only [a_image, ↓reduceDIte, b_image] at h
       generalize_proofs at h
       apply_fun initial at h
       simpa [a_image_spec, b_image_spec] using h
@@ -168,7 +168,7 @@ noncomputable def initial_in_omega_star_swap [LinearOrder T]
       have a_image_spec := a_image.choose_spec
       have b_image := le_intersect_j b_le_n1 k
       have b_image_spec := b_image.choose_spec
-      simp only [a_image, ↓reduceDIte, b_image, n]
+      simp only [a_image, ↓reduceDIte, b_image]
       generalize_proofs
       have : a_image.choose < b_image.choose ↔
           initial a_image.choose < initial b_image.choose := by
@@ -183,20 +183,20 @@ noncomputable def initial_in_omega_star_swap [LinearOrder T]
       intro a j a_le_n1 t h
       have a_image := le_intersect_j a_le_n1 j
       have a_image_spec := a_image.choose_spec
-      simp only [a_image, ↓reduceDIte, n] at h
+      simp only [a_image, ↓reduceDIte] at h
       generalize_proofs at h
       have : initial t < initial a_image.choose := by
         exact (InitialSeg.lt_iff_lt initial).mpr h
-      simp only [a_image_spec, Prod.Lex.lt_iff, ofLex_toLex, n] at this
+      simp only [a_image_spec, Prod.Lex.lt_iff, ofLex_toLex] at this
       have : OrderDual.toDual (OrderDual.ofDual ((ofLex (initial t)).1)) ≤ OrderDual.toDual n + 1 := by
         obtain _ | ⟨_, _⟩ := this
         <;> simp
         all_goals order
       have exists_initial_t := le_intersect_j this (ofLex (initial t)).2
       use OrderDual.ofDual (ofLex (initial t)).1, (ofLex (initial t)).2, this
-      simp only [exists_initial_t, ↓reduceDIte, n]
+      simp only [exists_initial_t, ↓reduceDIte]
       apply_fun initial
-      · simp [exists_initial_t.choose_spec]
+      · simp
       · exact EmbeddingLike.injective' initial
   }
 
@@ -251,7 +251,7 @@ noncomputable def final_in_omega_swap [LinearOrder T]
     have a_image_spec := a_image.choose_spec
     have b_image := le_intersect_j b_le_n1 k
     have b_image_spec := b_image.choose_spec
-    simp only [afterN_map, a_image, ↓reduceDIte, b_image, n, intersectsT] at h
+    simp only [a_image, ↓reduceDIte, b_image] at h
     generalize_proofs at h
     apply_fun final at h
     simpa [a_image_spec, b_image_spec] using h
@@ -259,7 +259,7 @@ noncomputable def final_in_omega_swap [LinearOrder T]
   have afterN_map_rel_iff' : ∀ {a b : (↑(afterN J (n + 1)))ᵒᵈ},
       afterN_map a < afterN_map b ↔ a < b := by
     simp only [afterN_map, afterN, Set.coe_setOf, Function.invFun, Set.mem_setOf_eq, OrderDual.exists,
-        Function.Embedding.coeFn_mk, OrderDual.forall, OrderDual.ofDual_toDual, Subtype.forall,
+        OrderDual.forall, OrderDual.ofDual_toDual, Subtype.forall,
         Lex.forall, ofLex_toLex, Prod.forall, OrderDual.toDual_lt_toDual, Subtype.mk_lt_mk, n,
         intersectsT]
     intro a j a_le_n1 b k b_le_n1
@@ -267,7 +267,7 @@ noncomputable def final_in_omega_swap [LinearOrder T]
     have a_image_spec := a_image.choose_spec
     have b_image := le_intersect_j b_le_n1 k
     have b_image_spec := b_image.choose_spec
-    simp only [a_image, ↓reduceDIte, b_image, n]
+    simp only [a_image, ↓reduceDIte, b_image]
     generalize_proofs
     have : a_image.choose < b_image.choose ↔
         final a_image.choose < final b_image.choose := by
@@ -280,7 +280,7 @@ noncomputable def final_in_omega_swap [LinearOrder T]
     intro a j n1_le_a t h
     have a_image := le_intersect_j n1_le_a j
     have a_image_spec := a_image.choose_spec
-    simp only [a_image, ↓reduceDIte, n] at h
+    simp only [a_image, ↓reduceDIte] at h
     generalize_proofs at h
     have : final (OrderDual.toDual t) < final a_image.choose := by
       exact (InitialSeg.lt_iff_lt final).mpr h
@@ -289,7 +289,7 @@ noncomputable def final_in_omega_swap [LinearOrder T]
     have : n < z.1 := by grind
     have exists_initial_t := le_intersect_j this z.2
     use z.1, z.2, this
-    simp only [exists_initial_t, ↓reduceDIte, n]
+    simp only [exists_initial_t, ↓reduceDIte]
     apply_fun final
     · simp [z]
     · exact EmbeddingLike.injective' final

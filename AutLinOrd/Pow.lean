@@ -54,11 +54,11 @@ theorem above_pow_any_above {f : α ≃o α} {x y : α}
 theorem fix_pow_fix {f : α ≃o α} {x : α}
     (fix : f x = x) (z : ℤ) : (f ^ z) x = x := by
   induction z with
-  | hz => simp
-  | hp i ih =>
+  | zero => simp
+  | succ i ih =>
     norm_cast at ih ⊢
     simp [add_comm i, ←add_pows_n, ih, fix]
-  | hn i ih =>
+  | pred i ih =>
     have : (f ^ (-1 : ℤ)) x = x := by
       exact (OrderIso.symm_apply_eq f).mpr fix.symm
     rw [neg_sub_comm, ←sub_pows, ih, this]

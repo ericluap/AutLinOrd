@@ -100,7 +100,7 @@ theorem non_decr_at_non_decr (f : α ≃o α) (x : α) :
     x ≤ (non_decr_at f x) x := by
   obtain eq | inv := non_decr_at_def f x
   · simp [eq]
-  · simp only [inv, gt_iff_lt, not_lt]
+  · simp only [inv]
     exact ((map_inv_lt_iff f⁻¹).mp inv.1).le
 
 theorem mem_elem_orbital_non_decr {f : α ≃o α} {x y : α}

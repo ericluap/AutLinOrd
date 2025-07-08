@@ -12,9 +12,8 @@ seal Lex
 theorem image_initialSeg_ordConnected [Preorder α] [PartialOrder β]
     (f : α ≤i β) : (Set.range f).OrdConnected := by
   have := f.mem_range_of_rel'
-  simp only [Function.Embedding.toFun_eq_coe, RelEmbedding.coe_toEmbedding,
-  InitialSeg.coe_toOrderEmbedding, Set.ordConnected_iff, Set.mem_range,
-  forall_exists_index, forall_apply_eq_imp_iff, InitialSeg.le_iff_le]
+  simp only [Set.ordConnected_iff, Set.mem_range,
+    forall_exists_index, forall_apply_eq_imp_iff]
   intro x z x_le_z y y_mem
   obtain y_lt_initz | y_eq_initz := y_mem.2.lt_or_eq
   · exact this z y y_lt_initz
@@ -166,7 +165,7 @@ noncomputable def initial_as_sum (initial : α ≤i β) :
       Function.Embedding.toFun_eq_coe, RelEmbedding.coe_toEmbedding, InitialSeg.coe_coe_fn]
     intro b
     by_cases h : b ∈ Set.range initial
-    · simp only [h, ↓reduceIte, ofLex_toLex, Sum.elim_inl]
+    · simp only [h]
       have : Nonempty α := mem_range_initial_nonempty initial h
       apply Function.invFun_eq
       simpa using h

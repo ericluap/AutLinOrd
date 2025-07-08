@@ -50,7 +50,7 @@ theorem inv_f_ge_combine_at {f : α ≃o α} (g : α ≃o α) {x y : α} :
 theorem inv_g_ge_combine_at {g : α ≃o α} (f : α ≃o α) {x y : α} :
     (combine_at f g x).symm y ≤ (orbital_at_non_decr g x).symm y := by
   rw [combine_at]
-  simp only [OrderIso.symm_trans_apply, map_le_map_iff]
+  simp only [OrderIso.symm_trans_apply]
   exact inv_non_decr_orbital_at_non_decr
 
 /--

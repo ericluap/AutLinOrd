@@ -131,8 +131,7 @@ theorem isOrdConnected_orbital (f : α ≃o α) : (orbital f).OrdConnected := by
 theorem mem_combine_orbitals_eq_elem_orbital {f g : α ≃o α} {x : α} {s : Set α}
     (mem : s ∈ orbitals (combine_at f g x)) :
     s = elem_orbital (combine_at f g x) x := by
-  simp only [orbitals, not_exists,
-    Set.mem_setOf_eq, Set.mem_singleton_iff] at mem ⊢
+  simp only [orbitals, not_exists, Set.mem_setOf_eq] at mem ⊢
   obtain ⟨z, hzs, not_single⟩ := mem
   rw [← hzs]
   specialize not_single z

@@ -17,7 +17,7 @@ noncomputable def ordEmbedding_iso_range [Nonempty α] (f : α ↪o β) :
   left_inv := by simp [Function.LeftInverse, Function.invFun]
   right_inv := by
     simp only [Function.RightInverse, Function.LeftInverse, Function.invFun,
-      Subtype.forall, Set.image_univ, Set.mem_range, Subtype.mk.injEq,
+      Subtype.forall, Set.mem_range, Subtype.mk.injEq,
       forall_exists_index]
     intro b x h
     have : ∃x, f x = b := by use x

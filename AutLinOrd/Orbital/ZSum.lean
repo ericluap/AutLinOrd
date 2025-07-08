@@ -60,9 +60,8 @@ theorem up_z_interval {f : α ≃o α} {x : α} {z : ℤ} {y : α}
 theorem down_z_interval {f : α ≃o α} {x : α} {z : ℤ} {y : α}
     (y_mem : y ∈ z_interval f x z) :
     ((non_decr_at f x)^(-(1 : ℤ))) y ∈ z_interval f x (z-1) := by
-  simp only [z_interval, Set.mem_Ico, map_le_map_iff,
-    OrderIso.lt_iff_lt] at y_mem ⊢
-  simp only [sub_eq_neg_add, ←add_pows, Int.reduceNeg, zpow_one,
+  simp only [z_interval, Set.mem_Ico] at y_mem ⊢
+  simp only [sub_eq_neg_add, ←add_pows, Int.reduceNeg,
     map_le_map_iff, neg_add_cancel_comm]
   constructor
   · exact y_mem.1
@@ -77,12 +76,12 @@ theorem shift_z_interval {f : α ≃o α} {x y : α} {z : ℤ}
     (y_mem : y ∈ z_interval f x z) (d : ℤ) :
     ((non_decr_at f x)^d) y ∈ z_interval f x (z + d) := by
   induction d with
-  | hz => simp [y_mem]
-  | hp i ih =>
+  | zero => simp [y_mem]
+  | succ i ih =>
     conv_rhs => rw [←add_comm 1, ←add_pows, zpow_one]
     conv_lhs => rw [←add_assoc z]
     exact up_z_interval ih
-  | hn i ih =>
+  | pred i ih =>
     conv_rhs => rw [neg_sub_comm, ←sub_pows]
     conv_lhs => rw [show z + (-(i : ℤ) - 1) = z + (-(i : ℤ)) - 1 by omega]
     exact down_z_interval ih

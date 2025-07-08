@@ -183,13 +183,13 @@ theorem orbital_at_not_mem_orbital {f : α ≃o α} {x y : α}
 theorem pow_orbital_at_eq (f : α ≃o α) (x : α) (z : ℤ) :
     ((orbital_at f x)^z) x = (f^z) x := by
   induction z with
-  | hz => simp
-  | hp i ih =>
+  | zero => simp
+  | succ i ih =>
     norm_cast at ih ⊢
     simp [add_comm i, ←add_pows_n, ih]
     exact orbital_at_mem_orbital f x
       (pow_mem_elem_orbital (↑i) (mem_elem_orbital_reflexive f x))
-  | hn i ih =>
+  | pred i ih =>
     rw [neg_sub_comm, ←sub_pows, ih, ←sub_pows]
     exact neg_orbital_at_mem_orbital f x
       (pow_mem_elem_orbital (-↑i) (mem_elem_orbital_reflexive f x))

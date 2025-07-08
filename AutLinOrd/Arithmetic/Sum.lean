@@ -1,7 +1,7 @@
 import Mathlib
 import AutLinOrd.Embeddings.ConvexEmbedding
 import AutLinOrd.Embeddings.Embeddings
-import AutLinOrd.OrderIso
+import AutLinOrd.Embeddings.OrderIso
 
 seal OrderDual
 seal Lex

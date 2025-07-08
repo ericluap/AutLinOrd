@@ -112,7 +112,7 @@ def undual (f : αᵒᵈ ≤c βᵒᵈ) : α ≤c β :=
   ⟨f.toOrdEmbedding.undual', by
     simp [OrderEmbedding.undual', Set.ordConnected_iff]
     intro x y y_le_x z z_mem_icc
-    simp only [Set.mem_range, Function.comp_apply, OrderDual.exists, OrderDual.ofDual_toDual]
+    simp only [Set.mem_range, Function.comp_apply]
     simp only [Set.mem_preimage] at z_mem_icc
     have := mem_icc_mem_range f y_le_x z_mem_icc
     simp only [Set.mem_range] at this
@@ -193,7 +193,7 @@ theorem image_Ico : f '' Set.Ico a b = Set.Ico (f a) (f b) := by
     · exact hy
 
 theorem add_pows_one (f : α ≤c α) (n : ℕ) :
-    f ((f ^ y) x) = (f ^ (1 + y)) x := by
+    f ((f ^ n) x) = (f ^ (1 + n)) x := by
   conv =>
     enter [1, 1]
     rw [show f = f^1 by simp]

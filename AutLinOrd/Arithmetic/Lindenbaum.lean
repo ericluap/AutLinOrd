@@ -23,7 +23,7 @@ def axb_emb : A ⊕ₗ X ⊕ₗ B ≤c A ⊕ₗ X ⊕ₗ B where
   inj' := by simp [Function.Injective]
   map_rel_iff' := by simp
   imageOrdConnected := by
-    simp only [RelEmbedding.coe_mk, Function.Embedding.coeFn_mk, Set.ordConnected_iff,
+    simp only [Set.ordConnected_iff,
     Set.mem_range, Lex.exists, Sum.exists, Lex.forall, EmbeddingLike.apply_eq_iff_eq, Sum.forall,
     reduceCtorEq, exists_false, or_self, IsEmpty.forall_iff, implies_true, Sum.inr.injEq,
     Sum.inl.injEq, and_true, true_and, Sum.Lex.toLex_le_toLex, Sum.Lex.sep, forall_const,
@@ -167,13 +167,13 @@ theorem pow_interval_a_mapa_mem_pow_image
       simp only [prev_interval, ConvexEmbedding.image_Ico]
       conv =>
         enter [1, 1]
-        rw [ConvexEmbedding.add_pows_one _ n, add_comm]
+        rw [ConvexEmbedding.add_pows_one, add_comm]
       conv =>
         enter [1, 2]
-        rw [ConvexEmbedding.add_pows_one _ n, add_comm]
+        rw [ConvexEmbedding.add_pows_one, add_comm]
     simp only [← this, Set.mem_image] at z_mem_next
     obtain ⟨y, y_mem_prev, y_map_z⟩ := z_mem_next
-    simp only [Set.mem_Ico, prev_interval, next_interval] at y_mem_prev
+    simp only [Set.mem_Ico, prev_interval] at y_mem_prev
     obtain ⟨n', a', h⟩ := ih y_mem_prev.1 y_mem_prev.2
     use 1+n', a'
     simp [-axb_emb_apply, pow_add, h, y_map_z]

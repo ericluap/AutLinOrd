@@ -215,8 +215,7 @@ theorem ordered_intersect_bounbded_bumps_bubbleR_transitive {f g : α ≃o α} {
   · by_cases g_leftbounded : leftBoundedOrbital g
     · exact intersect_leftBounded_bubbleR x_mem_f y_mem_f y_mem_g z_mem_g
         f_leftbounded g_leftbounded
-    · simp only [leftBoundedOrbital, not_exists, not_forall,
-        Classical.not_imp, not_lt] at g_leftbounded
+    · simp only [leftBoundedOrbital, not_exists, not_forall, not_lt] at g_leftbounded
       obtain ⟨t, ht, t_le_z⟩ := g_leftbounded x
       have : bubbleR t z := by
         left

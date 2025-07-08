@@ -1,6 +1,7 @@
-import Mathlib
-import AutLinOrd.Embeddings.ConvexEmbedding
-import AutLinOrd.Embeddings.Embeddings
+import Mathlib.Data.Prod.Lex
+import Mathlib.Data.Sum.Order
+import Mathlib.Logic.Function.CompTypeclasses
+import Mathlib.Tactic.Cases
 
 seal OrderDual
 seal Lex
@@ -37,26 +38,19 @@ def prodCongrRight (e : β₁ ≃o β₂) : α₁ ×ₗ β₁ ≃o α₁ ×ₗ �
 theorem prodCongrRight_apply (e : β₁ ≃o β₂) (a : α₁) (b : β₁) :
     prodCongrRight e (toLex (a, b)) = toLex (a, e b) := rfl
 
-def sumCongr (e₁ : α₁ ≃o α₂) (e₂ : β₁ ≃o β₂) : α₁ ⊕ₗ β₁ ≃o α₂ ⊕ₗ β₂ where
-  toFun := toLex ∘ Sum.map e₁ e₂ ∘ ofLex
-  invFun := toLex ∘ Sum.map e₁.symm e₂.symm ∘ ofLex
-  left_inv := by simp [Function.LeftInverse]
-  right_inv := by simp [Function.RightInverse, Function.LeftInverse]
-  map_rel_iff' := by simp [Prod.Lex.le_iff]
-
 def sumCongrLeft (e : β₁ ≃o β₂) : β₁ ⊕ₗ α₁ ≃o β₂ ⊕ₗ α₁ where
   toFun ba := toLex <| (ofLex ba).map e id
   invFun ba := toLex <| (ofLex ba).map e.symm id
   left_inv := by simp [Function.LeftInverse]
   right_inv := by simp [Function.RightInverse, Function.LeftInverse]
-  map_rel_iff' := by simp [Prod.Lex.le_iff]
+  map_rel_iff' := by simp
 
 def sumCongrRight (e : β₁ ≃o β₂) : α₁ ⊕ₗ β₁ ≃o α₁ ⊕ₗ β₂ where
   toFun ba := toLex <| (ofLex ba).map id e
   invFun ba := toLex <| (ofLex ba).map id e.symm
   left_inv := by simp [Function.LeftInverse]
   right_inv := by simp [Function.RightInverse, Function.LeftInverse]
-  map_rel_iff' := by simp [Prod.Lex.le_iff]
+  map_rel_iff' := by simp
 
 def sumProdDistrib (α β γ) [Preorder α] [Preorder β] [Preorder γ] :
     (α ⊕ₗ β) ×ₗ γ ≃o α ×ₗ γ ⊕ₗ β ×ₗ γ where

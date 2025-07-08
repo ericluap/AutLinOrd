@@ -41,8 +41,7 @@ theorem decr_plus_one_pow {f : α ≃o α} {x : α} (decr : isDecreasingAt f x)
 theorem incr_minus_one_pow {f : α ≃o α} {x : α} (incr : isIncreasingAt f x)
     (z : ℤ) : (f ^ (z - 1)) x < (f ^ z) x := by
   apply_fun f
-  simp [add_pows_one, incr_plus_one_pow,
-    show 1 + z = z + 1 by omega, incr_plus_one_pow incr z]
+  simp [add_pows_one, show 1 + z = z + 1 by omega, incr_plus_one_pow incr z]
 
 /--
   If `f` is decreasing at `x`, then for any integer `z`,
@@ -51,8 +50,7 @@ theorem incr_minus_one_pow {f : α ≃o α} {x : α} (incr : isIncreasingAt f x)
 theorem decr_minus_one_pow {f : α ≃o α} {x : α} (decr : isDecreasingAt f x)
     (z : ℤ) : (f ^ z) x < (f ^ (z - 1)) x := by
   apply_fun f
-  simp [add_pows_one, decr_plus_one_pow,
-    show 1 + z = z + 1 by omega, decr_plus_one_pow decr z]
+  simp [add_pows_one, show 1 + z = z + 1 by omega, decr_plus_one_pow decr z]
 
 /--
   If `f` is increasing at `x`, then for any
@@ -61,14 +59,14 @@ theorem decr_minus_one_pow {f : α ≃o α} {x : α} (decr : isDecreasingAt f x)
 theorem incr_pos_gt {f : α ≃o α} {x : α} {z : ℤ}
     (incr : isIncreasingAt f x) (pos : 0 < z) : x < (f ^ z) x  := by
   induction z with
-  | hz => simp at pos
-  | hp i ih =>
+  | zero => simp at pos
+  | succ i ih =>
     by_cases is_zero : i = 0
     · simp [is_zero, incr]
     · calc x
       _ < (f ^ (i : ℕ)) x := ih (by omega)
       _ < (f ^ ((i : ℕ) + 1)) x := by simp [←add_pows_n, incr]
-  | hn i _ => omega
+  | pred i _ => omega
 
 /--
   If `f` is increasing at `x`, then for any
@@ -77,9 +75,9 @@ theorem incr_pos_gt {f : α ≃o α} {x : α} {z : ℤ}
 theorem incr_neg_lt {f : α ≃o α} {x : α} {z : ℤ}
     (incr : isIncreasingAt f x) (neg : z < 0) : (f ^ z) x < x  := by
   induction z with
-  | hz => simp at neg
-  | hp i _ => omega
-  | hn i ih =>
+  | zero => simp at neg
+  | succ i _ => omega
+  | pred i ih =>
     by_cases is_zero : i = 0
     · rw [is_zero]
       apply_fun f
@@ -95,9 +93,9 @@ theorem incr_neg_lt {f : α ≃o α} {x : α} {z : ℤ}
 theorem decr_neg_gt {f : α ≃o α} {x : α} {z : ℤ}
     (decr : isDecreasingAt f x) (neg : z < 0) : x < (f ^ z) x  := by
   induction z with
-  | hz => simp at neg
-  | hp i _ => omega
-  | hn i ih =>
+  | zero => simp at neg
+  | succ i _ => omega
+  | pred i ih =>
     by_cases is_zero : i = 0
     · rw [is_zero]
       apply_fun f
@@ -235,9 +233,9 @@ theorem decr_ge_pow_ge {f : α ≃o α} {x : α} {z w : ℤ}
 theorem fixed_all_pow_eq {f : α ≃o α} {x : α}
     (fixed : f x = x) (z : ℤ) : (f ^ z) x = x := by
   induction z with
-  | hz => simp
-  | hp i ih => rw [add_comm, ←add_pows, ih, zpow_one, fixed]
-  | hn i ih =>
+  | zero => simp
+  | succ i ih => rw [add_comm, ←add_pows, ih, zpow_one, fixed]
+  | pred i ih =>
     rw [neg_sub_comm, ←sub_pows, ih]
     apply_fun f
     simp [fixed]

@@ -2,6 +2,7 @@ import Mathlib
 import AutLinOrd.Embeddings.ConvexEmbedding
 import AutLinOrd.Embeddings.InitialSeg
 import AutLinOrd.Embeddings.Embeddings
+import AutLinOrd.Arithmetic.Sum
 
 seal OrderDual
 seal Lex
@@ -258,3 +259,6 @@ def omegaA_initial_axb : ℕ ×ₗ A ≤i A ⊕ₗ X ⊕ₗ B where
 -/
 def omegaA_initial_x : ℕ ×ₗ A ≤i X :=
   (omegaA_initial_axb x_eq_axb).trans x_eq_axb.symm.toInitialSeg
+
+noncomputable def ax_eq_x_of_x_eq_axb : A ⊕ₗ X ≃o X :=
+  omegaA_initial_absorbs (omegaA_initial_x x_eq_axb)

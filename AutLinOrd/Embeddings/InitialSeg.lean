@@ -3,6 +3,12 @@ import Mathlib.Algebra.Order.Group.End
 import Mathlib.Order.InitialSeg
 import Mathlib.Tactic.ApplyFun
 
+/-!
+  This file proves additional facts about `InitialSeg`.
+  In particular, it shows that every `InitialSeg` is a `ConvexEmbedding`
+  and that if `α ≤i β`, then `β ≃o α + γ` for some linear order `γ`.
+-/
+
 seal OrderDual
 seal Lex
 
@@ -79,6 +85,23 @@ def InitialSeg.complFinal (initial : α ≤i β) : initial.complᵒᵈ ≤i β�
     have b_mem_range := initial.mem_range_of_rel' a b b_lt_c
     simp only [InitialSeg.coe_coe_fn, Set.mem_range] at b_mem_range
     grind
+
+/--
+  If `α` is initial in `β` and
+  the image of `α` is entirely contained in a subset `s` of `β`,
+  then `α` is initial in `s`
+-/
+def initial_subset_initial (initial : α ≤i β)
+    (initial_subset : Set.range initial ⊆ s) : α ≤i s where
+  toFun x := ⟨initial x, by
+    simp [initial_subset (show initial x ∈ Set.range initial by simp)]⟩
+  inj' := by simp [Function.Injective]
+  map_rel_iff' := initial.map_rel_iff'
+  mem_range_of_rel' := by
+    simp only [RelEmbedding.coe_mk, Function.Embedding.coeFn_mk, Set.mem_range, Subtype.forall,
+      Subtype.mk_lt_mk, Subtype.mk.injEq]
+    intro a b _ b_lt
+    exact initial.mem_range_of_rel' a b b_lt
 
 end Preorder
 
@@ -183,6 +206,63 @@ noncomputable def initial_as_sum (initial : α ≤i β) :
     constructor
     · grind [initial_le_mem_compl]
     · grind [initial_lt_mem_compl]
+
+/--
+  If `α` is final in `β`, then we can write `β` as
+  `γ + α = β`, where `γ` is the linear order `initial.complᵒᵈ`
+-/
+noncomputable def final_as_sum' (initial : αᵒᵈ ≤i βᵒᵈ) :
+    initial.complᵒᵈ ⊕ₗ α ≃o β :=
+  let dual_aDual_compl_eq_bDualDual := (initial_as_sum initial).dual
+  let dual_aDual_compl_eq_complDual_aDualDual := (OrderIso.sumLexDualAntidistrib αᵒᵈ initial.compl)
+  let complDual_aDualDual_eq_complDual_a := OrderIso.sumLexCongr (OrderIso.refl initial.complᵒᵈ) (OrderIso.dualDual α).symm
+  let dual_aDual_compl_eq_complDual_a := dual_aDual_compl_eq_complDual_aDualDual.trans complDual_aDualDual_eq_complDual_a
+  let dual_aDual_compl_eq_b := dual_aDual_compl_eq_bDualDual.trans (OrderIso.dualDual β).symm
+  dual_aDual_compl_eq_complDual_a.symm.trans dual_aDual_compl_eq_b
+
+/--
+  `initial.complDual` is isomorphic to `initial.complᵒᵈ`
+-/
+def InitialSeg.complDual (initial : αᵒᵈ ≤i βᵒᵈ) := (Set.range initial.undual)ᶜ
+def complDual_iso_compl_dual (initial : αᵒᵈ ≤i βᵒᵈ) :
+    initial.complᵒᵈ ≃o initial.complDual where
+  toFun x := ⟨OrderDual.ofDual (OrderDual.ofDual x).val, by
+      simp only [InitialSeg.complDual, InitialSeg.undual, ConvexEmbedding.undual,
+        OrderEmbedding.undual', Set.mem_compl_iff, Set.mem_range, not_exists]
+      intro z h
+      change OrderDual.ofDual (initial (OrderDual.toDual z)) = _ at h
+      simp only [EmbeddingLike.apply_eq_iff_eq] at h
+      have := (OrderDual.ofDual x).prop
+      simp only [InitialSeg.compl] at this
+      have : (OrderDual.ofDual x).val ∈ Set.range initial := by
+        simp
+        use z
+      contradiction
+    ⟩
+  invFun x := OrderDual.toDual ⟨OrderDual.toDual x.val, by
+      simp [InitialSeg.compl]
+      intro z h
+      have := x.prop
+      simp only [InitialSeg.complDual] at this
+      have : x.val ∈ (Set.range initial.undual) := by
+        simp only [InitialSeg.undual, ConvexEmbedding.undual, OrderEmbedding.undual', Set.mem_range]
+        use z
+        change (⇑OrderDual.ofDual ∘ initial ∘ ⇑OrderDual.toDual) z = _
+        simp [h]
+      contradiction
+    ⟩
+  left_inv := by simp [Function.LeftInverse]
+  right_inv := by simp [Function.RightInverse, Function.LeftInverse]
+  map_rel_iff' := by simp
+
+/--
+  If `α` is final in `β`, then we can write `β` as
+  `γ + α = β`, where `γ` is the linear order `initial.complDual`
+-/
+noncomputable def final_as_sum (initial : αᵒᵈ ≤i βᵒᵈ) :
+    initial.complDual ⊕ₗ α ≃o β :=
+  let swap_complDual := OrderIso.sumLexCongr (complDual_iso_compl_dual initial) (OrderIso.refl α)
+  swap_complDual.symm.trans (final_as_sum' initial)
 
 end InitialAsSum
 

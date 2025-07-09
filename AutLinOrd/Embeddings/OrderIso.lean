@@ -3,6 +3,10 @@ import Mathlib.Data.Sum.Order
 import Mathlib.Logic.Function.CompTypeclasses
 import Mathlib.Tactic.Cases
 
+/-!
+  Proves basic facts about `OrderIso`
+-/
+
 seal OrderDual
 seal Lex
 

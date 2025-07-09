@@ -192,14 +192,24 @@ theorem image_Ico : f '' Set.Ico a b = Set.Ico (f a) (f b) := by
         simpa [←hy]
     · exact hy
 
-theorem add_pows_one (f : α ≤c α) (n : ℕ) :
-    f ((f ^ n) x) = (f ^ (1 + n)) x := by
-  conv =>
-    enter [1, 1]
-    rw [show f = f^1 by simp]
-  simp only [←Function.comp_apply (f := f^(1 : ℕ))]
-  simp only [←coe_mul, ←pow_add]
-
+@[simp]
+theorem image_Ioc : f '' Set.Ioc a b = Set.Ioc (f a) (f b) := by
+  ext z
+  simp only [Set.mem_image, Set.mem_Ioc]
+  constructor
+  · intro h
+    obtain ⟨x, a_le_x, x_lt_b, fx_eq_z⟩ := h
+    simp [a_le_x]
+  · intro h
+    obtain ⟨y, hy⟩ := le_and_le_mem_range f h.1.le h.2
+    use y
+    constructor
+    · constructor
+      · have := h.1
+        simpa [←hy, h.1]
+      · have := h.2
+        simpa [←hy]
+    · exact hy
 end ConvexEmbedding
 
 @[coe]

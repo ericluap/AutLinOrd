@@ -2,6 +2,7 @@ import Mathlib
 import AutLinOrd.Embeddings.ConvexEmbedding
 import AutLinOrd.Embeddings.Embeddings
 import AutLinOrd.Embeddings.OrderIso
+import AutLinOrd.Embeddings.InitialSeg
 
 seal OrderDual
 seal Lex
@@ -48,15 +49,41 @@ def omegaDual_plus_n_iso_omegaDual (n : ℕ) : ℕᵒᵈ ⊕ₗ Fin n ≃o ℕ�
 /--
   `nA + ℕA` is isomorphic to `ℕA`
 -/
-def nA_plus_omegaA_iso_omegaA [Preorder A] (n : ℕ) :
+def nA_plus_omegaA_iso_omegaA (A) [Preorder A] (n : ℕ) :
     (Fin n) ×ₗ A ⊕ₗ ℕ ×ₗ A ≃o ℕ ×ₗ A :=
   (OrderIso.sumProdDistrib (Fin n) ℕ A).symm.trans
     ((n_plus_omega_iso_omega n).prodCongr (OrderIso.refl A))
 
 /--
+  `A + ℕA` is isomorphic to `ℕA`
+-/
+def A_plus_omegaA_iso_omegaA (A) [Preorder A] :
+    A ⊕ₗ ℕ ×ₗ A ≃o ℕ ×ₗ A :=
+  let : Fin 1 ×ₗ A ≃o A := Prod.Lex.uniqueProd (Fin 1) A
+  let := OrderIso.sumLexCongr this (OrderIso.refl (ℕ ×ₗ A))
+  this.symm.trans (nA_plus_omegaA_iso_omegaA A 1)
+
+/--
   `ℕᵒᵈA + nA` is isomorphic to `ℕᵒᵈA`.
 -/
-def omegaDualA_plus_nA_iso_omegaDualA [Preorder A] (n : ℕ) :
+def omegaDualA_plus_nA_iso_omegaDualA (A) [Preorder A] (n : ℕ) :
     ℕᵒᵈ ×ₗ A ⊕ₗ (Fin n) ×ₗ A ≃o ℕᵒᵈ ×ₗ A :=
   (OrderIso.sumProdDistrib ℕᵒᵈ (Fin n) A).symm.trans
     ((omegaDual_plus_n_iso_omegaDual n).prodCongr (OrderIso.refl A))
+
+def omegaDualA_plus_A_iso_omegaDualA (A) [Preorder A] :
+    ℕᵒᵈ ×ₗ A ⊕ₗ A ≃o ℕᵒᵈ ×ₗ A :=
+  let : Fin 1 ×ₗ A ≃o A := Prod.Lex.uniqueProd (Fin 1) A
+  let := OrderIso.sumLexCongr (OrderIso.refl (ℕᵒᵈ ×ₗ A)) this
+  this.symm.trans (omegaDualA_plus_nA_iso_omegaDualA A 1)
+
+noncomputable def omegaA_initial_absorbs [LinearOrder A] [LinearOrder X]
+    (omegaA_initial : ℕ ×ₗ A ≤i X) : A ⊕ₗ X ≃o X :=
+  let nA_compl_eq_X := initial_as_sum omegaA_initial
+  let A_plus_nA_compl_eq_A_X := OrderIso.sumLexCongr (OrderIso.refl A) nA_compl_eq_X
+  let A_nA_plus_compl_eq_A_plus_nA_compl := OrderIso.sumLexAssoc A (ℕ ×ₗ A) omegaA_initial.compl
+  let A_nA_plus_compl_eq_A_X := A_nA_plus_compl_eq_A_plus_nA_compl.trans A_plus_nA_compl_eq_A_X
+  let A_nA_plus_compl_eq_nA_plus_compl :=
+    OrderIso.sumLexCongr (A_plus_omegaA_iso_omegaA A) (OrderIso.refl omegaA_initial.compl)
+  let A_X_eq_nA_compl := A_nA_plus_compl_eq_A_X.symm.trans A_nA_plus_compl_eq_nA_plus_compl
+  A_X_eq_nA_compl.trans nA_compl_eq_X

@@ -8,6 +8,7 @@ import AutLinOrd.Embeddings.ConvexEmbedding
 import AutLinOrd.Embeddings.Embeddings
 import AutLinOrd.Embeddings.InitialSeg
 import AutLinOrd.Embeddings.OrderIso
+import AutLinOrd.Embeddings.SelfConvexEmbedding
 import AutLinOrd.IncrDecr
 import AutLinOrd.Orbital.CombineAt
 import AutLinOrd.Orbital.ElemOrbital

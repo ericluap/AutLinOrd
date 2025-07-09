@@ -1,8 +1,11 @@
-import Mathlib
-import AutLinOrd.Embeddings.ConvexEmbedding
-import AutLinOrd.Embeddings.Embeddings
-import AutLinOrd.Embeddings.OrderIso
 import AutLinOrd.Embeddings.InitialSeg
+import AutLinOrd.Embeddings.OrderIso
+import Mathlib.Algebra.Order.Ring.Nat
+import Mathlib.Order.Fin.Basic
+
+/-!
+  This file proves basic facts about additive absorption.
+-/
 
 seal OrderDual
 seal Lex
@@ -71,12 +74,18 @@ def omegaDualA_plus_nA_iso_omegaDualA (A) [Preorder A] (n : ℕ) :
   (OrderIso.sumProdDistrib ℕᵒᵈ (Fin n) A).symm.trans
     ((omegaDual_plus_n_iso_omegaDual n).prodCongr (OrderIso.refl A))
 
+/--
+  `ℕᵒᵈA + A` is isomorphic to `ℕA`
+-/
 def omegaDualA_plus_A_iso_omegaDualA (A) [Preorder A] :
     ℕᵒᵈ ×ₗ A ⊕ₗ A ≃o ℕᵒᵈ ×ₗ A :=
   let : Fin 1 ×ₗ A ≃o A := Prod.Lex.uniqueProd (Fin 1) A
   let := OrderIso.sumLexCongr (OrderIso.refl (ℕᵒᵈ ×ₗ A)) this
   this.symm.trans (omegaDualA_plus_nA_iso_omegaDualA A 1)
 
+/--
+  If `ℕA` is initial in `X`, then `A + X` is isomorphic to `X`
+-/
 noncomputable def omegaA_initial_absorbs [LinearOrder A] [LinearOrder X]
     (omegaA_initial : ℕ ×ₗ A ≤i X) : A ⊕ₗ X ≃o X :=
   let nA_compl_eq_X := initial_as_sum omegaA_initial
@@ -87,3 +96,17 @@ noncomputable def omegaA_initial_absorbs [LinearOrder A] [LinearOrder X]
     OrderIso.sumLexCongr (A_plus_omegaA_iso_omegaA A) (OrderIso.refl omegaA_initial.compl)
   let A_X_eq_nA_compl := A_nA_plus_compl_eq_A_X.symm.trans A_nA_plus_compl_eq_nA_plus_compl
   A_X_eq_nA_compl.trans nA_compl_eq_X
+
+/--
+  If `ℕᵒᵈA` is final in `X`, then `X + A` is isomorphic to `X`
+-/
+noncomputable def omegaDualA_final_absorbs [LinearOrder A] [LinearOrder X]
+    (omegaDualA_final : (ℕᵒᵈ ×ₗ A)ᵒᵈ ≤i Xᵒᵈ) : X ⊕ₗ A ≃o X :=
+  let complDual_plus_nA_eq_X := final_as_sum omegaDualA_final
+  let complDual_nA_plus_A_eq_X_A := OrderIso.sumLexCongr complDual_plus_nA_eq_X (OrderIso.refl A)
+  let complDual_plus_nA_A_eq_complDual_nA_plus_A := OrderIso.sumLexAssoc omegaDualA_final.complDual (ℕᵒᵈ ×ₗ A) A
+  let complDual_plus_nA_A_eq_X_A := complDual_plus_nA_A_eq_complDual_nA_plus_A.symm.trans complDual_nA_plus_A_eq_X_A
+  let complDual_plus_nA_A_eq_complDual_plus_nA :=
+    OrderIso.sumLexCongr (OrderIso.refl omegaDualA_final.complDual) (omegaDualA_plus_A_iso_omegaDualA A)
+  let complDual_nA_eq_X_A := complDual_plus_nA_A_eq_X_A.symm.trans complDual_plus_nA_A_eq_complDual_plus_nA
+  complDual_nA_eq_X_A.trans complDual_plus_nA_eq_X

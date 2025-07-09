@@ -43,7 +43,7 @@ theorem initial_seg_embeds_in_single {I J : Type u} [LinearOrder I]
   have S_ordConnected : S.OrdConnected := Set.OrdConnected.inter'
 
   have S_iso_S' : S ≃o S' :=
-    ordEmbedding_iso_range (α := S) (β := ℕ ×ₗ I) map_S_to_A
+    OrderEmbedding.orderIso (α := S) (β := ℕ ×ₗ I) (f := map_S_to_A)
   have S'_nonempty : Nonempty S' :=
     (Equiv.nonempty_congr S_iso_S').mp S_nonempty
   have S'_ordConnected : S'.OrdConnected := map_S_to_A.imageOrdConnected
@@ -85,8 +85,8 @@ theorem final_seg_embeds_in_single {I J : Type u} [LinearOrder I]
       simp [S_def, extendsLeftRight_nonempty_inter A B extendsLeftRight]
   have S_ordConnected : S.OrdConnected := Set.OrdConnected.inter'
 
-  have S_iso_S' : S ≃o S' := ordEmbedding_iso_range (α := S) (β := ℕᵒᵈ ×ₗ J)
-      (S_initial_B.trans B_iso.toInitialSeg)
+  have S_iso_S' : S ≃o S' := OrderEmbedding.orderIso (α := S) (β := ℕᵒᵈ ×ₗ J)
+      (f := S_initial_B.trans B_iso.toInitialSeg)
   have S'_nonempty : Nonempty S' :=
     (Equiv.nonempty_congr S_iso_S').mp S_nonempty
   have S'_ordConnected : S'.OrdConnected := image_initialSeg_ordConnected

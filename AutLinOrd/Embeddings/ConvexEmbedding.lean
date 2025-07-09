@@ -157,6 +157,9 @@ def comp (g : β ≤c γ) (f : α ≤c β) : α ≤c γ where
     rw [Set.range_comp]
     exact interval_convexEmbedding_interval g f.imageOrdConnected
 
+@[simp]
+def comp_apply (g : β ≤c γ) (f : α ≤c β) (x : α) : g.comp f x = g (f x) := rfl
+
 instance : Monoid (α ≤c α) where
   one := .refl
   mul f g := f.comp g

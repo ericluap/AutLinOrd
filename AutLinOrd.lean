@@ -1,6 +1,7 @@
 import AutLinOrd.Arithmetic.Lindenbaum
 import AutLinOrd.Arithmetic.Sum
 import AutLinOrd.Basic
+import AutLinOrd.CalcOrderIso
 import AutLinOrd.Crossing.Crossing
 import AutLinOrd.Crossing.ExtendsLeftRight
 import AutLinOrd.Crossing.OmegaSum

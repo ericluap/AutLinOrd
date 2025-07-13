@@ -1,5 +1,6 @@
 import AutLinOrd.Arithmetic.Sum
 import AutLinOrd.Embeddings.SelfConvexEmbedding
+import AutLinOrd.CalcOrderIso
 
 /-!
   This file proves Lindenbaum's theorem which says that if
@@ -46,7 +47,7 @@ theorem axb_emb_apply (x : A ⊕ₗ X ⊕ₗ B) :
   rfl
 
 /--
-  The range of `axb_emb` is all of `X `in `A + X + B`
+  The range of `axb_emb` is all of `X` in `A + X + B`
 -/
 theorem axb_emb_range_x :
     Set.range (axb_emb x_eq_axb) = Set.range (Sum.inrₗ ∘ Sum.inlₗ) := by
@@ -98,18 +99,14 @@ noncomputable def B_iso_right : B ≃o (Set.range (Sum.inrₗ ∘ Sum.inrₗ) : 
   If `X` is isomorphic to `A + X + B`, then,
   `A + X + B` is isomorphic to `ℕA + (axb_emb x_eq_axb).center + ℕᵒᵈB`
 -/
-noncomputable def axb_decomp :=
-  let axb_eq_omegaLtImage_center_omegaDualGtImage := (axb_emb x_eq_axb).decomp
-  let B_iso_gtImage := (axb_gtImage_eq_right x_eq_axb).symm ▸ B_iso_right
-  let A_iso_ltImage := (axb_ltImage_eq_left x_eq_axb).symm ▸ A_iso_left
-  let omegaLtImage_iso_omegaA := OrderIso.prodCongr (OrderIso.refl ℕ) A_iso_ltImage.symm
-  let omegaDualGtImage_iso_omegaDualB := OrderIso.prodCongr (OrderIso.refl ℕᵒᵈ) B_iso_gtImage.symm
-  let omegaLtImage_center_omegaDualGtImage_eq_A_center_B := OrderIso.sumLexCongr omegaLtImage_iso_omegaA
-    (OrderIso.sumLexCongr
-      (OrderIso.refl (axb_emb x_eq_axb).center)
-      omegaDualGtImage_iso_omegaDualB)
-  axb_eq_omegaLtImage_center_omegaDualGtImage.trans
-    omegaLtImage_center_omegaDualGtImage_eq_A_center_B
+noncomputable def axb_decomp := by
+  orderCalc A ⊕ₗ X ⊕ₗ B
+  _ ≃o ℕ ×ₗ (axb_emb x_eq_axb).lt_image ⊕ₗ (axb_emb x_eq_axb).center ⊕ₗ
+      ℕᵒᵈ ×ₗ (axb_emb x_eq_axb).gt_image := (axb_emb x_eq_axb).decomp
+  _ ≃o ℕ ×ₗ A ⊕ₗ (axb_emb x_eq_axb).center ⊕ₗ ℕᵒᵈ ×ₗ B := by
+    orderCongr
+    · exact ((axb_ltImage_eq_left x_eq_axb) ▸ A_iso_left).symm
+    · exact ((axb_gtImage_eq_right x_eq_axb) ▸ B_iso_right).symm
 
 /--
   If `X` is isomorphic to `A + X + B`, then

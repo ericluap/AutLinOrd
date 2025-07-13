@@ -2,6 +2,7 @@ import AutLinOrd.Embeddings.InitialSeg
 import Mathlib.Algebra.Group.Nat.Defs
 import Mathlib.Algebra.Order.Group.Synonym
 import Mathlib.Tactic.Order
+import AutLinOrd.CalcOrderIso
 
 /-!
   This file proves facts about convex embeddings from a linear order to itself.
@@ -402,11 +403,12 @@ abbrev center := (omegaLtImage_initial_leftover f).compl
   If `f` if a convex embedding from `α` to itself,
   then `α` is isomorphic to `ℕ(f.lt_image) + f.center + ℕᵒᵈ(f.gt_image)`
 -/
-noncomputable def decomp : α ≃o ℕ ×ₗ f.lt_image ⊕ₗ f.center ⊕ₗ ℕᵒᵈ ×ₗ f.gt_image :=
-  let a_eq_compl_gt := (omegaDualGtImage_final_sum f).symm
-  let compl_eq_lt_center := (initial_as_sum (omegaLtImage_initial_leftover f)).symm
-  let compl_gt_eq_lt_center_gt := OrderIso.sumLexCongr compl_eq_lt_center (OrderIso.refl (ℕᵒᵈ ×ₗ f.gt_image))
-  let a_eq_lt_center_gt := a_eq_compl_gt.trans compl_gt_eq_lt_center_gt
-  a_eq_lt_center_gt.trans (OrderIso.sumLexAssoc ..)
+noncomputable def decomp : α ≃o ℕ ×ₗ f.lt_image ⊕ₗ f.center ⊕ₗ ℕᵒᵈ ×ₗ f.gt_image := by
+  orderCalc α
+  _ ≃o ↑f.omegaDualGtImage_final.complDual ⊕ₗ ℕᵒᵈ ×ₗ ↑f.gt_image :=
+      (omegaDualGtImage_final_sum f).symm
+  _ ≃o (ℕ ×ₗ f.lt_image ⊕ₗ f.center) ⊕ₗ ℕᵒᵈ ×ₗ f.gt_image := by
+      orderCongr [(initial_as_sum (omegaLtImage_initial_leftover f)).symm]
+  _ ≃o ℕ ×ₗ f.lt_image ⊕ₗ f.center ⊕ₗ ℕᵒᵈ ×ₗ f.gt_image := by orderCongr
 
 end ConvexEmbedding

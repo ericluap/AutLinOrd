@@ -2,6 +2,7 @@ import AutLinOrd.Embeddings.InitialSeg
 import AutLinOrd.Embeddings.OrderIso
 import Mathlib.Algebra.Order.Ring.Nat
 import Mathlib.Order.Fin.Basic
+import AutLinOrd.CalcOrderIso
 
 /-!
   This file proves basic facts about additive absorption.
@@ -42,71 +43,65 @@ def n_plus_omega_iso_omega (n : ℕ) : Fin n ⊕ₗ ℕ ≃o ℕ where
 /--
   `ℕᵒᵈ + n` is isomorphic to `ℕᵒᵈ`
 -/
-def omegaDual_plus_n_iso_omegaDual (n : ℕ) : ℕᵒᵈ ⊕ₗ Fin n ≃o ℕᵒᵈ :=
-  let distrib_od : (Fin n ⊕ₗ ℕ)ᵒᵈ ≃o ℕᵒᵈ ⊕ₗ (Fin n)ᵒᵈ :=
-    OrderIso.sumLexDualAntidistrib (Fin n) ℕ
-  let fin_n_eq : (Fin n)ᵒᵈ ≃o (Fin n) := by exact Fin.revOrderIso
-  (fin_n_eq.sumCongrRight (α₁ := ℕᵒᵈ)).symm.trans distrib_od.symm
-    |>.trans (n_plus_omega_iso_omega n).dual
+def omegaDual_plus_n_iso_omegaDual (n : ℕ) : ℕᵒᵈ ⊕ₗ Fin n ≃o ℕᵒᵈ := by
+  orderCalc ℕᵒᵈ ⊕ₗ Fin n
+  _ ≃o ℕᵒᵈ ⊕ₗ (Fin n)ᵒᵈ := by orderCongr [Fin.revOrderIso.symm]
+  _ ≃o (Fin n ⊕ₗ ℕ)ᵒᵈ := OrderIso.sumLexDualAntidistrib (Fin n) ℕ |>.symm
+  _ ≃o ℕᵒᵈ := (n_plus_omega_iso_omega n).dual
 
 /--
   `nA + ℕA` is isomorphic to `ℕA`
 -/
 def nA_plus_omegaA_iso_omegaA (A) [Preorder A] (n : ℕ) :
-    (Fin n) ×ₗ A ⊕ₗ ℕ ×ₗ A ≃o ℕ ×ₗ A :=
-  (OrderIso.sumProdDistrib (Fin n) ℕ A).symm.trans
-    ((n_plus_omega_iso_omega n).prodCongr (OrderIso.refl A))
+    (Fin n) ×ₗ A ⊕ₗ ℕ ×ₗ A ≃o ℕ ×ₗ A := by
+  orderCalc (Fin n) ×ₗ A ⊕ₗ ℕ ×ₗ A
+  _ ≃o (Fin n ⊕ₗ ℕ) ×ₗ A := OrderIso.sumProdDistrib (Fin n) ℕ A |>.symm
+  _ ≃o ℕ ×ₗ A := by orderCongr [n_plus_omega_iso_omega]
 
 /--
   `A + ℕA` is isomorphic to `ℕA`
 -/
-def A_plus_omegaA_iso_omegaA (A) [Preorder A] :
-    A ⊕ₗ ℕ ×ₗ A ≃o ℕ ×ₗ A :=
-  let : Fin 1 ×ₗ A ≃o A := Prod.Lex.uniqueProd (Fin 1) A
-  let := OrderIso.sumLexCongr this (OrderIso.refl (ℕ ×ₗ A))
-  this.symm.trans (nA_plus_omegaA_iso_omegaA A 1)
+def A_plus_omegaA_iso_omegaA (A) [Preorder A] : A ⊕ₗ ℕ ×ₗ A ≃o ℕ ×ₗ A := by
+  orderCalc A ⊕ₗ ℕ ×ₗ A
+  _ ≃o Fin 1 ×ₗ A ⊕ₗ ℕ ×ₗ A := by orderCongr [(Prod.Lex.uniqueProd (Fin 1) A).symm]
+  _ ≃o ℕ ×ₗ A := nA_plus_omegaA_iso_omegaA A 1
 
 /--
   `ℕᵒᵈA + nA` is isomorphic to `ℕᵒᵈA`.
 -/
 def omegaDualA_plus_nA_iso_omegaDualA (A) [Preorder A] (n : ℕ) :
-    ℕᵒᵈ ×ₗ A ⊕ₗ (Fin n) ×ₗ A ≃o ℕᵒᵈ ×ₗ A :=
-  (OrderIso.sumProdDistrib ℕᵒᵈ (Fin n) A).symm.trans
-    ((omegaDual_plus_n_iso_omegaDual n).prodCongr (OrderIso.refl A))
+    ℕᵒᵈ ×ₗ A ⊕ₗ (Fin n) ×ₗ A ≃o ℕᵒᵈ ×ₗ A := by
+  orderCalc ℕᵒᵈ ×ₗ A ⊕ₗ (Fin n) ×ₗ A
+  _ ≃o (ℕᵒᵈ ⊕ₗ Fin n) ×ₗ A := OrderIso.sumProdDistrib ℕᵒᵈ (Fin n) A |>.symm
+  _ ≃o ℕᵒᵈ ×ₗ A := by orderCongr [omegaDual_plus_n_iso_omegaDual]
 
 /--
   `ℕᵒᵈA + A` is isomorphic to `ℕA`
 -/
 def omegaDualA_plus_A_iso_omegaDualA (A) [Preorder A] :
-    ℕᵒᵈ ×ₗ A ⊕ₗ A ≃o ℕᵒᵈ ×ₗ A :=
-  let : Fin 1 ×ₗ A ≃o A := Prod.Lex.uniqueProd (Fin 1) A
-  let := OrderIso.sumLexCongr (OrderIso.refl (ℕᵒᵈ ×ₗ A)) this
-  this.symm.trans (omegaDualA_plus_nA_iso_omegaDualA A 1)
+    ℕᵒᵈ ×ₗ A ⊕ₗ A ≃o ℕᵒᵈ ×ₗ A := by
+  orderCalc ℕᵒᵈ ×ₗ A ⊕ₗ A
+  _ ≃o ℕᵒᵈ ×ₗ A ⊕ₗ Fin 1 ×ₗ A := by orderCongr [(Prod.Lex.uniqueProd (Fin 1) A).symm]
+  _ ≃o ℕᵒᵈ ×ₗ A := omegaDualA_plus_nA_iso_omegaDualA A 1
 
 /--
   If `ℕA` is initial in `X`, then `A + X` is isomorphic to `X`
 -/
 noncomputable def omegaA_initial_absorbs [LinearOrder A] [LinearOrder X]
-    (omegaA_initial : ℕ ×ₗ A ≤i X) : A ⊕ₗ X ≃o X :=
-  let nA_compl_eq_X := initial_as_sum omegaA_initial
-  let A_plus_nA_compl_eq_A_X := OrderIso.sumLexCongr (OrderIso.refl A) nA_compl_eq_X
-  let A_nA_plus_compl_eq_A_plus_nA_compl := OrderIso.sumLexAssoc A (ℕ ×ₗ A) omegaA_initial.compl
-  let A_nA_plus_compl_eq_A_X := A_nA_plus_compl_eq_A_plus_nA_compl.trans A_plus_nA_compl_eq_A_X
-  let A_nA_plus_compl_eq_nA_plus_compl :=
-    OrderIso.sumLexCongr (A_plus_omegaA_iso_omegaA A) (OrderIso.refl omegaA_initial.compl)
-  let A_X_eq_nA_compl := A_nA_plus_compl_eq_A_X.symm.trans A_nA_plus_compl_eq_nA_plus_compl
-  A_X_eq_nA_compl.trans nA_compl_eq_X
+    (omegaA_initial : ℕ ×ₗ A ≤i X) : A ⊕ₗ X ≃o X := by
+  orderCalc A ⊕ₗ X
+  _ ≃o A ⊕ₗ ℕ ×ₗ A ⊕ₗ omegaA_initial.compl := by orderCongr [(initial_as_sum omegaA_initial).symm]
+  _ ≃o (A ⊕ₗ ℕ ×ₗ A) ⊕ₗ omegaA_initial.compl := by orderCongr
+  _ ≃o ℕ ×ₗ A ⊕ₗ omegaA_initial.compl := by orderCongr [A_plus_omegaA_iso_omegaA]
+  _ ≃o X := initial_as_sum omegaA_initial
 
 /--
   If `ℕᵒᵈA` is final in `X`, then `X + A` is isomorphic to `X`
 -/
 noncomputable def omegaDualA_final_absorbs [LinearOrder A] [LinearOrder X]
-    (omegaDualA_final : (ℕᵒᵈ ×ₗ A)ᵒᵈ ≤i Xᵒᵈ) : X ⊕ₗ A ≃o X :=
-  let complDual_plus_nA_eq_X := final_as_sum omegaDualA_final
-  let complDual_nA_plus_A_eq_X_A := OrderIso.sumLexCongr complDual_plus_nA_eq_X (OrderIso.refl A)
-  let complDual_plus_nA_A_eq_complDual_nA_plus_A := OrderIso.sumLexAssoc omegaDualA_final.complDual (ℕᵒᵈ ×ₗ A) A
-  let complDual_plus_nA_A_eq_X_A := complDual_plus_nA_A_eq_complDual_nA_plus_A.symm.trans complDual_nA_plus_A_eq_X_A
-  let complDual_plus_nA_A_eq_complDual_plus_nA :=
-    OrderIso.sumLexCongr (OrderIso.refl omegaDualA_final.complDual) (omegaDualA_plus_A_iso_omegaDualA A)
-  let complDual_nA_eq_X_A := complDual_plus_nA_A_eq_X_A.symm.trans complDual_plus_nA_A_eq_complDual_plus_nA
-  complDual_nA_eq_X_A.trans complDual_plus_nA_eq_X
+    (omegaDualA_final : (ℕᵒᵈ ×ₗ A)ᵒᵈ ≤i Xᵒᵈ) : X ⊕ₗ A ≃o X := by
+  orderCalc X ⊕ₗ A
+  _ ≃o (omegaDualA_final.complDual ⊕ₗ ℕᵒᵈ ×ₗ A) ⊕ₗ A := by orderCongr [(final_as_sum omegaDualA_final).symm]
+  _ ≃o omegaDualA_final.complDual ⊕ₗ ℕᵒᵈ ×ₗ A ⊕ₗ A := by orderCongr
+  _ ≃o omegaDualA_final.complDual ⊕ₗ ℕᵒᵈ ×ₗ A  := by orderCongr [omegaDualA_plus_A_iso_omegaDualA]
+  _ ≃o X := final_as_sum omegaDualA_final

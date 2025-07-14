@@ -1,5 +1,6 @@
 import Lean
 import AutLinOrd.Embeddings.OrderIso
+import AutLinOrd.Embeddings.InitialSeg
 
 open Lean Elab Command Term Meta Tactic
 
@@ -14,6 +15,9 @@ def prodLeft [LinearOrder A] [LinearOrder B] [LinearOrder C]
 
 def prodRight [LinearOrder A] [LinearOrder B] [LinearOrder C]
     (h : B ≃o C) : B ×ₗ A ≃o C ×ₗ A := OrderIso.prodCongr h (OrderIso.refl A)
+
+def sumLexAssocSymm [LinearOrder A] [LinearOrder B] [LinearOrder C] :
+    A ⊕ₗ B ⊕ₗ C ≃o (A ⊕ₗ B) ⊕ₗ C := OrderIso.sumLexAssoc A B C |>.symm
 
 syntax "orderCongr" (" [" term,* "]")? : tactic
 
@@ -30,58 +34,70 @@ macro_rules
       | apply prodLeft
       | apply prodRight
       | apply OrderIso.sumLexAssoc
+      | apply sumLexAssocSymm
       | apply OrderIso.sumLexCongr
       | apply OrderIso.prodCongr)
     <;> orderCongr $[[$arg,*]]?
   )
 
-def mkOrderCalcFirstStepView (step0 : TSyntax ``calcFirstStep) : TermElabM CalcStepView :=
+structure OrderCalcRel where
+  -- The relations to match (e.g. `OrderIso` or `InitialSeg`)
+  relMatch : List Name
+  -- The relation to use (e.g. `OrderIso` or `initalSegRel`)
+  rel : Name
+  -- The proof of reflexivity
+  rfl : Name
+  -- The proof of transitivity
+  trans : Name
+
+abbrev initialSegRefl (α) [LT α] : α ≤i α := InitialSeg.refl (· < ·)
+abbrev initialSegRel (α) (β) [LT α] [LT β] := α ≤i β
+
+def registeredOrderCalcRel : List OrderCalcRel := [
+  ⟨[``OrderIso], ``OrderIso, ``OrderIso.refl, ``OrderIso.trans⟩,
+  ⟨[``InitialSeg, ``initialSegRel], ``initialSegRel, ``initialSegRefl, ``InitialSeg.trans⟩,
+]
+
+def isOrderIso (e : Expr) : Bool := e.isAppOf ``OrderIso
+
+def getOrderCalcRelation? (e : Expr) : MetaM (Option (OrderCalcRel × Expr × Expr)) := do
+  let some orderCalcRel := registeredOrderCalcRel.find? (·.relMatch.any e.isAppOf) |
+    return none
+  return (orderCalcRel, e.getAppArgs[0]!, e.getAppArgs[1]!)
+
+def mkOrderCalcFirstStepView (step0 : TSyntax ``calcFirstStep) (rel : OrderCalcRel) : TermElabM CalcStepView :=
   withRef step0 do
   match step0  with
-  | `(calcFirstStep| $term:term)      =>
-    return { ref := step0, term := ← `($term ≃o $term), proof := ← ``(OrderIso.refl _)}
+  | `(calcFirstStep| $term:term) =>
+    return {
+      ref := step0,
+      term := ← `($(mkIdent rel.rel) $term $term),
+      proof := ← `($(mkIdent rel.rfl) _)
+    }
   | `(calcFirstStep| $term := $proof) => return { ref := step0, term, proof}
   | _ => throwUnsupportedSyntax
 
-def mkOrderCalcStepViews (steps : TSyntax ``calcSteps) : TermElabM (Array CalcStepView) :=
+def mkOrderCalcStepViews (steps : TSyntax ``calcSteps) (targetType : Expr) :
+    TermElabM (Array CalcStepView) :=
   match steps with
   | `(calcSteps|
         $step0:calcFirstStep
         $rest*) => do
-    let mut steps := #[← mkOrderCalcFirstStepView step0]
+    let some (rel, _, _) := ← getOrderCalcRelation? targetType |
+      throwError "target is not an 'orderCalc' relation"
+    let mut steps := #[← mkOrderCalcFirstStepView step0 rel]
     for step in rest do
       let `(calcStep| $term := $proof) := step | throwUnsupportedSyntax
       steps := steps.push { ref := step, term, proof }
     return steps
   | _ => throwUnsupportedSyntax
 
-def isOrderIso (e : Expr) : Bool := e.isAppOf ``OrderIso
-
-def getOrderCalcRelation? (e : Expr) : MetaM (Option (Expr × Expr × Expr)) := do
-  if isOrderIso e then
-    return (e.appFn!, e.getAppArgs[0]!, e.getAppArgs[1]!)
-  else
-    return none
-
-def mkOrderCalcTrans (result step : Expr) : MetaM (Expr × Expr) := do
-  let result := ←mkAppM ``OrderIso.trans #[result, step]
+def mkOrderCalcTrans (result step : Expr) (rel : OrderCalcRel) : MetaM (Expr × Expr) := do
+  let result := ←mkAppM rel.trans #[result, step]
   let resultType := (← instantiateMVars (← inferType result)).headBeta
   unless (← getOrderCalcRelation? resultType).isSome do
     throwError "invalid 'calc' step, step result is not a relation{indentExpr resultType}"
   return (result, resultType)
-
-partial def replaceFirstHoleWithTerm (t replace : Term) : TermElabM Term :=
-  -- The state is true if we should annotate the immediately next hole with the type.
-  return ⟨← StateT.run' (go t) true⟩
-where
-  go (t : Syntax) := do
-    unless ← get do return t
-    match t with
-    | .node _ ``Lean.Parser.Term.hole _ =>
-      set false
-      `($(⟨replace⟩))
-    | .node i k as => return .node i k (← as.mapM go)
-    | _ => set false; return t
 
 def elabOrderCalcSteps (steps : Array CalcStepView) : TermElabM (Expr × Expr) := do
   let mut result? := none
@@ -92,7 +108,7 @@ def elabOrderCalcSteps (steps : Array CalcStepView) : TermElabM (Expr × Expr) :
         annotateFirstHoleWithType step.term (←inferType prevRhs)
       else
         pure step.term
-    let some (_rel, lhs, rhs) ← getOrderCalcRelation? type |
+    let some (rel, lhs, rhs) ← getOrderCalcRelation? type |
       throwErrorAt step.term "invalid 'calc' step, relation expected{indentExpr type}"
     if let some prevRhs := prevRhs? then
       unless (← isDefEqGuarded lhs prevRhs) do
@@ -103,7 +119,7 @@ def elabOrderCalcSteps (steps : Array CalcStepView) : TermElabM (Expr × Expr) :
     result? := some <| ← do
       if let some (result, _resultType) := result? then
         synthesizeSyntheticMVarsUsingDefault
-        withRef step.term do mkOrderCalcTrans result proof
+        withRef step.term do mkOrderCalcTrans result proof rel
       else
         pure (proof, type)
     prevRhs? := rhs
@@ -113,8 +129,8 @@ def elabOrderCalcSteps (steps : Array CalcStepView) : TermElabM (Expr × Expr) :
 elab "orderCalc" steps:calcSteps : tactic =>
     closeMainGoalUsing `orderCalc (checkNewUnassigned := false) fun target tag => do
     withTacticInfoContext steps do
-      let steps ← mkOrderCalcStepViews steps
       let target := (← instantiateMVars target).consumeMData
+      let steps ← mkOrderCalcStepViews steps target
 
       let (val, mvarIds) ← withCollectingNewGoalsFrom (parentTag := tag) (tagSuffix := `orderCalc) <| runTermElab do
         let (val, valType) ← elabOrderCalcSteps steps
@@ -122,7 +138,7 @@ elab "orderCalc" steps:calcSteps : tactic =>
           -- Immediately the right type, no need for further processing.
           return val
 
-        -- Calc extension failed, so let's go back and mimic the `calc` expression
+        -- Failed
         Term.ensureHasTypeWithErrorMsgs target val
           (mkImmedErrorMsg := fun _ => Term.throwCalcFailure steps)
           (mkErrorMsg := fun _ => Term.throwCalcFailure steps)
@@ -134,3 +150,9 @@ example [LinearOrder A] [LinearOrder B] [LinearOrder C] [LinearOrder D]
   orderCalc (A ⊕ₗ B) ⊕ₗ C
   _ ≃o A ⊕ₗ B ⊕ₗ C := by orderCongr
   _ ≃o A ⊕ₗ B ⊕ₗ D := by orderCongr
+
+example [LinearOrder A] [LinearOrder B] [LinearOrder C] [LinearOrder D]
+    (h1 : C ≤i D) (h2 : A ≤i C) : A ≤i D := by
+  orderCalc A
+  _ ≤i C := h2
+  _ ≤i D := h1

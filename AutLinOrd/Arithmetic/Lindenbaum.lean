@@ -1,5 +1,6 @@
 import AutLinOrd.Arithmetic.Sum
 import AutLinOrd.Embeddings.SelfConvexEmbedding
+import AutLinOrd.Embeddings.InitialSeg
 import AutLinOrd.CalcOrderIso
 
 /-!
@@ -99,7 +100,7 @@ noncomputable def B_iso_right : B ≃o (Set.range (Sum.inrₗ ∘ Sum.inrₗ) : 
   If `X` is isomorphic to `A + X + B`, then,
   `A + X + B` is isomorphic to `ℕA + (axb_emb x_eq_axb).center + ℕᵒᵈB`
 -/
-noncomputable def axb_decomp := by
+noncomputable def axb_decomp : A ⊕ₗ X ⊕ₗ B ≃o ℕ ×ₗ A ⊕ₗ (axb_emb x_eq_axb).center ⊕ₗ ℕᵒᵈ ×ₗ B := by
   orderCalc A ⊕ₗ X ⊕ₗ B
   _ ≃o ℕ ×ₗ (axb_emb x_eq_axb).lt_image ⊕ₗ (axb_emb x_eq_axb).center ⊕ₗ
       ℕᵒᵈ ×ₗ (axb_emb x_eq_axb).gt_image := (axb_emb x_eq_axb).decomp
@@ -118,18 +119,20 @@ noncomputable def x_decomp := x_eq_axb.trans (axb_decomp x_eq_axb)
   If `X` is isomorphic to `A + X + B`, then
   `ℕA` is initial in `X`
 -/
-noncomputable def omegaA_initial_x : ℕ ×ₗ A ≤i X :=
- let omegaA_initial_decomp := fst_inital_sum (α := ℕ ×ₗ A) (β := (axb_emb x_eq_axb).center ⊕ₗ ℕᵒᵈ ×ₗ B)
- omegaA_initial_decomp.trans (x_decomp x_eq_axb).symm.toInitialSeg
+noncomputable def omegaA_initial_x : ℕ ×ₗ A ≤i X := by
+  orderCalc ℕ ×ₗ A
+  _ ≤i ℕ ×ₗ A ⊕ₗ (axb_emb x_eq_axb).center ⊕ₗ ℕᵒᵈ ×ₗ B := fst_inital_sum
+  _ ≤i X := (x_decomp x_eq_axb).symm.toInitialSeg
 
 /--
   If `X` is isomorphic to `A + X + B`, then
   `ℕᵒᵈB` is final in `X`
 -/
-noncomputable def omegaDualB_final_x : (ℕᵒᵈ ×ₗ B)ᵒᵈ ≤i Xᵒᵈ :=
- let centerB_final_decomp := snd_final_sum (α := ℕ ×ₗ A) (β := (axb_emb x_eq_axb).center ⊕ₗ ℕᵒᵈ ×ₗ B)
- let omegaDualB_final_centerB := snd_final_sum (α := (axb_emb x_eq_axb).center) (β := ℕᵒᵈ ×ₗ B)
- (omegaDualB_final_centerB.trans centerB_final_decomp).trans (x_decomp x_eq_axb).symm.dual.toInitialSeg
+noncomputable def omegaDualB_final_x : (ℕᵒᵈ ×ₗ B)ᵒᵈ ≤i Xᵒᵈ := by
+  orderCalc (ℕᵒᵈ ×ₗ B)ᵒᵈ
+  _ ≤i ((axb_emb x_eq_axb).center ⊕ₗ ℕᵒᵈ ×ₗ B)ᵒᵈ := snd_final_sum
+  _ ≤i (ℕ ×ₗ A ⊕ₗ (axb_emb x_eq_axb).center ⊕ₗ ℕᵒᵈ ×ₗ B)ᵒᵈ := snd_final_sum
+  _ ≤i Xᵒᵈ := (x_decomp x_eq_axb).symm.dual.toInitialSeg
 
 /--
   If `X` is isomorphic to `A + X + B`, then
@@ -151,7 +154,10 @@ noncomputable def xb_eq_x_of_x_eq_axb: X ≃o X ⊕ₗ B:=
   then `A` is isomporphic to `B`
 -/
 noncomputable def initial_final_iso (initial : A ≤i B) (final : Bᵒᵈ ≤i Aᵒᵈ) : A ≃o B :=
-  let B_sum := initial_as_sum initial
-  let A_sum := final_as_sum final
-  let A_split := A_sum.symm.trans (OrderIso.sumLexCongr (OrderIso.refl final.complDual) B_sum.symm)
+  let B_sum : A ⊕ₗ initial.compl ≃o B := initial_as_sum initial
+  let A_sum : final.complDual ⊕ₗ B ≃o A := final_as_sum final
+  let A_split : A ≃o final.complDual ⊕ₗ A ⊕ₗ initial.compl := by
+    orderCalc A
+    _ ≃o final.complDual ⊕ₗ B := A_sum.symm
+    _ ≃o final.complDual ⊕ₗ A ⊕ₗ initial.compl := by orderCongr [B_sum.symm]
   xb_eq_x_of_x_eq_axb A_split |>.trans B_sum

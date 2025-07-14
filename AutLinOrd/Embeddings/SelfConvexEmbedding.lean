@@ -3,6 +3,7 @@ import Mathlib.Algebra.Group.Nat.Defs
 import Mathlib.Algebra.Order.Group.Synonym
 import Mathlib.Tactic.Order
 import AutLinOrd.CalcOrderIso
+import AutLinOrd.Arithmetic.Sum
 
 /-!
   This file proves facts about convex embeddings from a linear order to itself.
@@ -410,5 +411,28 @@ noncomputable def decomp : α ≃o ℕ ×ₗ f.lt_image ⊕ₗ f.center ⊕ₗ �
   _ ≃o (ℕ ×ₗ f.lt_image ⊕ₗ f.center) ⊕ₗ ℕᵒᵈ ×ₗ f.gt_image := by
       orderCongr [(initial_as_sum (omegaLtImage_initial_leftover f)).symm]
   _ ≃o ℕ ×ₗ f.lt_image ⊕ₗ f.center ⊕ₗ ℕᵒᵈ ×ₗ f.gt_image := by orderCongr
+
+/--
+  If `f` if a convex embedding from `α` to itself,
+  then `f.lt_image + α` is isomorphic to `α`
+-/
+noncomputable def absorb_ltImage : f.lt_image ⊕ₗ α ≃o α := by
+  orderCalc f.lt_image ⊕ₗ α
+  _ ≃o f.lt_image ⊕ₗ ℕ ×ₗ f.lt_image ⊕ₗ f.center ⊕ₗ ℕᵒᵈ ×ₗ f.gt_image := by orderCongr [f.decomp]
+  _ ≃o (f.lt_image ⊕ₗ ℕ ×ₗ f.lt_image) ⊕ₗ f.center ⊕ₗ ℕᵒᵈ ×ₗ f.gt_image := by orderCongr
+  _ ≃o ℕ ×ₗ f.lt_image ⊕ₗ f.center ⊕ₗ ℕᵒᵈ ×ₗ f.gt_image := by orderCongr [A_plus_omegaA_iso_omegaA]
+  _ ≃o α := f.decomp.symm
+
+/--
+  If `f` if a convex embedding from `α` to itself,
+  then `α + f.gt_image` is isomorphic to `α`
+-/
+noncomputable def absorb_gtImage : α ⊕ₗ f.gt_image ≃o α := by
+  orderCalc α ⊕ₗ f.gt_image
+  _ ≃o (ℕ ×ₗ f.lt_image ⊕ₗ f.center ⊕ₗ ℕᵒᵈ ×ₗ f.gt_image) ⊕ₗ f.gt_image := by orderCongr [f.decomp]
+  _ ≃o ℕ ×ₗ f.lt_image ⊕ₗ (f.center ⊕ₗ ℕᵒᵈ ×ₗ f.gt_image) ⊕ₗ f.gt_image := by orderCongr
+  _ ≃o ℕ ×ₗ f.lt_image ⊕ₗ f.center ⊕ₗ ℕᵒᵈ ×ₗ f.gt_image ⊕ₗ f.gt_image := by orderCongr
+  _ ≃o ℕ ×ₗ f.lt_image ⊕ₗ f.center ⊕ₗ ℕᵒᵈ ×ₗ f.gt_image := by orderCongr [omegaDualA_plus_A_iso_omegaDualA]
+  _ ≃o α := f.decomp.symm
 
 end ConvexEmbedding

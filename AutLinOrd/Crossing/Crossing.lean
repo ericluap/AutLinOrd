@@ -107,7 +107,7 @@ theorem final_seg_embeds_in_single {I J : Type u} [LinearOrder I]
 /--
   If `T` is initial in `ℕᵒᵈ ×ₗ J`, then `ℕᵒᵈ ×ₗ J` is initial in `T`.
 -/
-noncomputable def initial_in_omega_star_swap [LinearOrder T]
+noncomputable def initial_in_omega_star_swap {T J : Type*} [LinearOrder T]
     [LinearOrder J] [t_nonempty : Nonempty T] (initial : T ≤i ℕᵒᵈ ×ₗ J) :
     ℕᵒᵈ ×ₗ J ≤i T := by
   let intersectsT (n : ℕ) := ∃(t : T) (j : J),
@@ -205,7 +205,7 @@ noncomputable def initial_in_omega_star_swap [LinearOrder T]
 /--
   If `T` is final in `ℕ ×ₗ J`, then `ℕ ×ₗ J` is final in `T`.
 -/
-noncomputable def final_in_omega_swap [LinearOrder T]
+noncomputable def final_in_omega_swap {T J : Type*} [LinearOrder T]
     [LinearOrder J] [t_nonempty : Nonempty T] (final : Tᵒᵈ ≤i (ℕ ×ₗ J)ᵒᵈ) :
     (ℕ ×ₗ J)ᵒᵈ ≤i Tᵒᵈ := by
   let intersectsT (n : ℕ) := ∃(t : T) (j : J),
@@ -320,12 +320,12 @@ theorem crossing_embed {I J : Type u} [LinearOrder I] [LinearOrder J]
     simp only [←exists_true_iff_nonempty] at final convex
     obtain ⟨final⟩ := final
     obtain ⟨convex⟩ := convex
-    have := final_in_omega_swap final
+    have : (ℕ ×ₗ I)ᵒᵈ ≤i Tᵒᵈ := final_in_omega_swap final
     exact Nonempty.intro (convex.comp this.undual)
   · obtain ⟨T, _, init, convex, T_nonempty⟩ := initial_seg_embeds_in_single
       A_interval B_interval extendsLeftRight A_iso B_iso
     simp only [←exists_true_iff_nonempty] at init convex
     obtain ⟨init⟩ := init
     obtain ⟨convex⟩ := convex
-    have := initial_in_omega_star_swap init
+    have : ℕᵒᵈ ×ₗ J ≤i T:= initial_in_omega_star_swap init
     exact Nonempty.intro (convex.comp this)

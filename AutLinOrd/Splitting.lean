@@ -122,6 +122,7 @@ def leftConvex_two : A ≤c Fin 2 ×ₗ A where
     rw [this] at z_mem
     simp only [Fin.isValue, Prod.mk.eta, toLex_ofLex, Prod.Lex.le_iff, ofLex_toLex, Fin.not_lt_zero,
       false_or] at z_mem
+    rw [this]
     grind
 
 @[simp]
@@ -143,6 +144,7 @@ def rightConvex_two : A ≤c Fin 2 ×ₗ A where
     have : z = toLex ((ofLex z).1, (ofLex z).2) := by simp
     rw [this] at z_mem
     simp only [Fin.isValue, Prod.mk.eta, toLex_ofLex, Prod.Lex.le_iff, ofLex_toLex] at z_mem
+    rw [this]
     grind
 
 @[simp]

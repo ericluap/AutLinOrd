@@ -212,8 +212,8 @@ theorem decr_eq_pow_eq {f : α ≃o α} {x : α} {z w : ℤ}
 -/
 theorem incr_ge_pow_ge {f : α ≃o α} {x : α} {z w : ℤ}
     (incr : isIncreasingAt f x) (ge : (f^z) x ≤ (f^w) x) : z ≤ w := by
-  obtain eq | gt := ge.eq_or_gt
-  · exact (incr_eq_pow_eq incr eq).symm.le
+  obtain eq | gt := ge.eq_or_lt
+  · exact (incr_eq_pow_eq incr eq).le
   · exact (incr_gt_pow_gt incr gt).le
 
 /--
@@ -222,8 +222,8 @@ theorem incr_ge_pow_ge {f : α ≃o α} {x : α} {z w : ℤ}
 -/
 theorem decr_ge_pow_ge {f : α ≃o α} {x : α} {z w : ℤ}
     (decr : isDecreasingAt f x) (ge : (f^z) x ≤ (f^w) x) : w ≤ z := by
-  obtain eq | gt := ge.eq_or_gt
-  · exact (decr_eq_pow_eq decr eq).le
+  obtain eq | gt := ge.eq_or_lt
+  · exact (decr_eq_pow_eq decr eq).symm.le
   · exact (decr_gt_pow_lt decr gt).le
 
 /--

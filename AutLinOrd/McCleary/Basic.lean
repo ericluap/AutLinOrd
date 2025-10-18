@@ -51,7 +51,7 @@ def aut_sup (f g : S ≃o S) : S ≃o S where
       · right
         constructor <;> order
   left_inv := by
-    simp [Function.LeftInverse]
+    simp only [Function.LeftInverse, map_sup, OrderIso.symm_apply_apply]
     intro s
     obtain fs_le_gs | gs_le_fs := Std.IsLinearPreorder.le_total (f s) (g s)
     · have : g.symm (f s) ≤ g.symm (g s) := g.symm.monotone fs_le_gs
@@ -61,7 +61,7 @@ def aut_sup (f g : S ≃o S) : S ≃o S where
       simp only [OrderIso.symm_apply_apply] at this
       simp [this]
   right_inv := by
-    simp [Function.LeftInverse, Function.RightInverse]
+    simp only [Function.RightInverse, Function.LeftInverse, map_inf, OrderIso.apply_symm_apply]
     intro s
     obtain fs_le_gs | gs_le_fs := Std.IsLinearPreorder.le_total (f.symm s) (g.symm s)
     · have : f (f.symm s) ≤ f (g.symm s) := f.monotone fs_le_gs
@@ -101,7 +101,7 @@ def aut_inf (f g : S ≃o S) : S ≃o S where
       have fa_le_fb : f a ≤ f b := OrderIso.monotone f a_le_b
       order
   left_inv := by
-    simp [Function.LeftInverse]
+    simp only [Function.LeftInverse, map_inf, OrderIso.symm_apply_apply]
     intro s
     obtain fs_le_gs | gs_le_fs := Std.IsLinearPreorder.le_total (f s) (g s)
     · have : f.symm (f s) ≤ f.symm (g s) := f.symm.monotone fs_le_gs
@@ -111,7 +111,7 @@ def aut_inf (f g : S ≃o S) : S ≃o S where
       simp only [OrderIso.symm_apply_apply] at this
       simp [this]
   right_inv := by
-    simp [Function.LeftInverse, Function.RightInverse]
+    simp only [Function.RightInverse, Function.LeftInverse, map_sup, OrderIso.apply_symm_apply]
     intro s
     obtain fs_le_gs | gs_le_fs := Std.IsLinearPreorder.le_total (f.symm s) (g.symm s)
     · have : g (f.symm s) ≤ g (g.symm s) := g.monotone fs_le_gs

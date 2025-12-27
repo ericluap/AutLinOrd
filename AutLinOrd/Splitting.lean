@@ -227,7 +227,7 @@ theorem A_initial_leftEmbGtImage_mem_rightCompl
   simp [ConvexEmbedding.gt_image, rightEmb_apply]
   intro a
   have not_equal := x.prop
-  simp [A_initial_leftEmbGtImage, rightEmb, InitialSeg.compl, compl, Subtype.eq_iff] at not_equal
+  simp [A_initial_leftEmbGtImage, rightEmb, InitialSeg.compl, compl, Subtype.ext_iff] at not_equal
   change ∀x_1 : A, ¬(twoConvex (toLex (1,x_1))) = x at not_equal
   have left_lt : ∀x_1 : A, twoConvex (toLex (0, x_1)) < x := by
     have := x.val.prop.out
@@ -267,7 +267,7 @@ theorem mem_leftGtImageCompl_of_rightGtImage (x : (rightEmb twoConvex).gt_image)
   simp only [InitialSeg.compl, A_initial_leftEmbGtImage, rightEmb_apply, Fin.isValue,
     Set.mem_compl_iff, Set.mem_range, not_exists]
   intro a eq
-  simp only [Fin.isValue, Subtype.eq_iff] at eq
+  simp only [Fin.isValue, Subtype.ext_iff] at eq
   change twoConvex (toLex (1, a)) = x at eq
   have := x.prop
   simp only [ConvexEmbedding.gt_image, Set.mem_range, rightEmb_apply, Fin.isValue,

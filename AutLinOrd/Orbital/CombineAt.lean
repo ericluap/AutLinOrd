@@ -138,7 +138,7 @@ theorem pow_f_le_pow_combine_le {f g : α ≃o α} {x y : α} {z : ℤ}
     ∃l : ℤ, ((combine_at f g x)^l) x ≤ y := by
   cases z with
   | ofNat n =>
-    simp only [Int.ofNat_eq_coe, zpow_natCast] at pow_f_le
+    simp only [Int.ofNat_eq_natCast, zpow_natCast] at pow_f_le
     use 0
     simp only [zpow_zero, RelIso.coe_one, id_eq]
     transitivity (orbital_at_non_decr f x ^ n) x
@@ -163,7 +163,7 @@ theorem pow_g_le_pow_combine_le {f g : α ≃o α} {x y : α} {z : ℤ}
     ∃l : ℤ, ((combine_at f g x)^l) x ≤ y := by
   cases z with
   | ofNat n =>
-    simp only [Int.ofNat_eq_coe, zpow_natCast] at pow_g_le
+    simp only [Int.ofNat_eq_natCast, zpow_natCast] at pow_g_le
     use 0
     simp only [zpow_zero, RelIso.coe_one, id_eq]
     transitivity (orbital_at_non_decr g x ^ n) x
@@ -188,7 +188,7 @@ theorem pow_f_ge_combine_ge {f g : α ≃o α} {x y : α} {z : ℤ}
     ∃u : ℤ, y ≤ ((combine_at f g x)^u) x := by
   cases z with
   | ofNat n =>
-    simp only [Int.ofNat_eq_coe, zpow_natCast] at pow_f_ge
+    simp only [Int.ofNat_eq_natCast, zpow_natCast] at pow_f_ge
     use n
     transitivity (orbital_at_non_decr f x ^ n) x
     · exact pow_f_ge
@@ -213,7 +213,7 @@ theorem pow_g_ge_combine_ge {f g : α ≃o α} {x y : α} {z : ℤ}
     ∃u : ℤ, y ≤ ((combine_at f g x)^u) x := by
   cases z with
   | ofNat n =>
-    simp only [Int.ofNat_eq_coe, zpow_natCast] at pow_g_ge
+    simp only [Int.ofNat_eq_natCast, zpow_natCast] at pow_g_ge
     use n
     transitivity (orbital_at_non_decr g x ^ n) x
     · exact pow_g_ge

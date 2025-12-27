@@ -119,12 +119,15 @@ theorem no_top_of_not_singleton_extensive {B : Set S}
   -- We have two distinct elements of `B`.
   let c : B := ⟨nontrivial.choose.1, Set.Nontrivial.choose_fst_mem nontrivial⟩
   let d : B := ⟨nontrivial.choose.2, Set.Nontrivial.choose_snd_mem nontrivial⟩
-  have a_ne_b : c ≠ d := by
+  have c_ne_d : c ≠ d := by
     simp [Subtype.eq_iff]
     exact (Set.Nontrivial.choose_fst_ne_choose_snd nontrivial)
 
   intro b
+  -- Since `B` is extensive, the block orbit of `b'` is cofinal and coinitial in `B`.
   obtain ⟨b', ⟨cofinal_b', coinitial_b'⟩⟩ := b_extensive
+  /- Since `b'` is cofinal in `B`, there exists a `u ∈ B` such that
+    `g · b' = u` and `b ≤ u`. -/
   obtain ⟨u, ⟨⟨⟨g, hg⟩, u_mem_B⟩, b_le_u⟩⟩ := cofinal_b' b.prop
 --  obtain ⟨l, ⟨⟨⟨f, hf⟩, l_mem_B⟩, l_le_b⟩⟩ := coinitial_b' b.prop
   simp only at hg --hf
